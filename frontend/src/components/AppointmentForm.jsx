@@ -94,7 +94,7 @@ export default function AppointmentForm({ onSuccess }) {
     setSubmitting(true);
     setStatus('');
     try {
-      const res = await axios.post('http://localhost:5000/api/appointments', {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/appointments`, {
         ...formData,
         date: new Date(formData.date),
       });

@@ -13,7 +13,7 @@ export default function PropertyDetailPage() {
   useEffect(() => {
     async function fetchProperty() {
       try {
-        const res = await axios.get(`http://localhost:5000/api/properties/${id}`);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties/${id}`);
         setProperty(res.data);
       } catch {
         setProperty(null);

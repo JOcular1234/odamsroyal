@@ -15,7 +15,7 @@ export default function AdminProperties() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('http://localhost:5000/api/properties');
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties`);
       setProperties(res.data);
     } catch (err) {
       setError('Failed to fetch properties');

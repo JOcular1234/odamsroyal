@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { ToastContainer, toast } from './toast-setup';
 
 export default function AdminLogin() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -68,14 +69,17 @@ export default function AdminLogin() {
         credentials: 'include',
       });
       if (res.ok) {
+        toast.success('Login successful! Redirecting...');
         router.push('/admin');
         router.refresh();
       } else {
         const data = await res.json();
         setError(data.message || 'Invalid credentials');
+        toast.error(data.message || 'Invalid credentials');
       }
     } catch (error) {
       setError('Error logging in. Please try again.');
+    toast.error('Error logging in. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -161,6 +165,7 @@ export default function AdminLogin() {
 
         </form>
       </div>
+    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 }

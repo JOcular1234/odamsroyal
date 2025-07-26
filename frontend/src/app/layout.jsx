@@ -1,9 +1,10 @@
+// frontend/src/app/layout.jsx
+// 'use client';
+import { useState } from 'react';
 import './globals.css';
 import Navbar from '../components/Navbar';
 import { AuthProvider } from '../context/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
 
 export const metadata = {
   title: 'About Us | Odamz Royal Consultz Nig Ltd',
@@ -24,13 +25,14 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <html lang="en">
       <body>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
             <Navbar />
-            <section id="about" className="py-12 bg-gray-50 min-h-screen">
+            {children}
               <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header Section */}
                 <div className="flex flex-col items-center mb-8 text-center">
@@ -112,7 +114,6 @@ export default function RootLayout({ children }) {
                   </div>
                 </div>
               </div>
-            </section>
             {children}
           </QueryClientProvider>
         </AuthProvider>

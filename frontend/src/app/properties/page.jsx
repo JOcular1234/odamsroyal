@@ -1,6 +1,6 @@
 // frontend/src/app/properties/pages.jsx
 'use client';
-import { useState } from 'react';
+import { useState , useEffect} from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import PropertyCard from '../../components/PropertyCard';
@@ -10,16 +10,19 @@ export default function PropertiesPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   // Debounce search input
-  React.useEffect(() => {
+  useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(search), 400);
     return () => clearTimeout(handler);
   }, [search]);
 
   // Fetch properties with React Query
-  const { data: properties = [], isLoading, error } = useQuery(['properties'], async () => {
-    const res = await axios.get('http://localhost:5000/api/properties');
+  const { data: properties = [], isLoading, error } = useQuery({
+  queryKey: ['properties'],
+  queryFn: async () => {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties`);
     return res.data;
-  });
+  }
+});
 
   const filteredProperties = properties.filter((property) =>
     property.title.toLowerCase().includes(debouncedSearch.toLowerCase())
@@ -42,3 +45,6 @@ export default function PropertiesPage() {
     </main>
   );
 }
+
+
+
