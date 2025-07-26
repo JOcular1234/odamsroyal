@@ -1,4 +1,4 @@
-/* Moved from login.jsx for Next.js App Router compatibility */
+// frontend/src/app/admin/login/page.jsx
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -187,7 +187,7 @@ export default function AdminLogin() {
 
         </form>
       </div>
-    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+    <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable paauseOnHover />
     </div>
   );
 }
