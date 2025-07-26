@@ -12,12 +12,22 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+];
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'https://odamsroyal.onrender.com',
-    ],
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'), false);
+      }
+    },
     credentials: true,
   })
 );
