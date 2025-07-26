@@ -42,7 +42,7 @@ async function sendAppointmentApproved(appointment) {
       <p>Dear ${appointment.name || 'User'},</p>
       <p>Your appointment for <b>${appointment.service || 'a service'}</b> on <b>${appointment.date ? new Date(appointment.date).toLocaleString() : ''}</b> has been <span style="color:green"><b>approved</b></span>.</p>
       <p>We look forward to seeing you. If you have any questions, reply to this email or contact us at <a href="mailto:info.odamzroyalty@gmail.com">info.odamzroyalty@gmail.com</a>.</p>
-      <p>📍 Suite 12, Real Estate Plaza, Abuja, Nigeria</p>
+      <p>📍 CBD, Abuja (Center Business District ), Nigeria</p>
       <p>📞 07061198858, 08123485718</p>
       <p style="margin-top:2em;">Thank you for choosing Odamz Royal!<br/><b>Odamz Royal Team</b></p>
     </div>

@@ -70,7 +70,7 @@ export default function AdminLogin() {
       });
       if (res.ok) {
         toast.success('Login successful! Redirecting...');
-        router.push('/admin');
+        router.push('/admin/inquiries');
         router.refresh();
       } else {
         const data = await res.json();
