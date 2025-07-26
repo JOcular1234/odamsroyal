@@ -6,7 +6,14 @@ export function middleware(req) {
   if (pathname === '/admin/login') {
     return NextResponse.next(); // Allow /admin/login without token
   }
-  // Do not block admin routes in middleware; rely on backend auth
+  if (pathname.startsWith('/admin')) {
+    const token = req.cookies.get('admin_token')?.value;
+    console.log('Middleware - Pathname:', pathname, 'Token:', token);
+    if (!token) {
+      console.log('Middleware - Redirecting to /admin/login');
+      return NextResponse.redirect(new URL('/admin/login', req.url));
+    }
+  }
   return NextResponse.next();
 }
 
