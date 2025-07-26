@@ -111,7 +111,7 @@ export default function AdminHeader() {
             aria-haspopup="true"
             aria-expanded={avatarOpen ? 'true' : 'false'}
           >
-            <span>A</span>
+            <span>OD</span>
           </button>
           {avatarOpen && (
             <div className="absolute right-0 mt-2 w-40 bg-white text-gray-900 rounded shadow-lg z-50 animate-fade-in flex flex-col overflow-hidden">
