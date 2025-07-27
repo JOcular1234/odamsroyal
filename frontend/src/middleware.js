@@ -24,6 +24,7 @@
 
 // In your frontend/src/middleware.js - Replace with this version that checks Authorization header too
 
+// frontend/src/middleware.js
 import { NextResponse } from 'next/server';
 
 export function middleware(req) {

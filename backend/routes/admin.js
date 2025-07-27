@@ -160,13 +160,13 @@
 // });
 
 // backednd/routes/admin.js
+const dotenv = require('dotenv');
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 const bcrypt = require('bcryptjs');
 const { findAdminByUsername } = require('../utils/db');
-const dotenv = require('dotenv');
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -232,7 +232,7 @@ router.post('/login', async (req, res) => {
       sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 60 * 60 * 2, // 2 hours
-      domain: isProduction ? '.odamsroyal.vercel.app' : undefined,
+      domain: isProduction ? '.odamsroyal.vercel.app' : undefined, // 👈 ADD THIS
 
     };
 

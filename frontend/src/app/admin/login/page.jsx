@@ -343,7 +343,8 @@ const handleSubmit = async (e) => {
       
       // Wait a bit then redirect
       setTimeout(() => {
-        window.location.href = '/admin/inquiries';
+        // window.location.href = '/admin/inquiries';
+        router.push('/admin/inquiries');
       }, 500);
     } else {
       const data = await res.json();
