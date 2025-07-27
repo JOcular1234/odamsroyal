@@ -35,7 +35,7 @@ const app = express();
 // );
 
 // In your backend/server.js - Replace the CORS configuration
-ddleware
+// ddleware/
 const allowedOrigins = [
   'http://localhost:3000',
   'https://odamsroyal.vercel.app'
