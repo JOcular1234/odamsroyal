@@ -264,22 +264,6 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  // Redirect if already authenticated
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     try {
-  //       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
-  //         credentials: 'include',
-  //       });
-  //       if (res.ok) {
-  //         router.replace('/admin/inquiries');
-  //       }
-  //     } catch {}
-  //   };
-  //   checkAuth();
-  // }, [router]);
-// In your frontend/src/app/admin/login/page.jsx - Replace the useEffect auth check
-
 useEffect(() => {
   const checkAuth = async () => {
     try {
@@ -335,36 +319,6 @@ useEffect(() => {
   };
 
   const isFormValid = () => form.username.length >= 3 && form.password.length >= 6;
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!validateForm()) return;
-  //   setError('');
-  //   setSubmitting(true);
-  //   try {
-  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify(form),
-  //       credentials: 'include',
-  //     });
-  //     if (res.ok) {
-  //       toast.success('Login successful! Redirecting...');
-  //       router.push('/admin/inquiries');
-  //       router.refresh();
-  //     } else {
-  //       const data = await res.json();
-  //       setError(data.message || 'Invalid credentials');
-  //       toast.error(data.message || 'Invalid credentials');
-  //     }
-  //   } catch (error) {
-  //     setError('Error logging in. Please try again.');
-  //   toast.error('Error logging in. Please try again.');
-  //   } finally {
-  //     setSubmitting(false);
-  //   }
-  // };
-  // In your frontend/src/app/admin/login/page.jsx - Replace the handleSubmit function
 
 const handleSubmit = async (e) => {
   e.preventDefault();

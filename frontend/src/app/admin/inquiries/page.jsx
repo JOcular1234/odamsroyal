@@ -30,7 +30,7 @@ export default function AdminInquiries() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries`, {
+      const res = await axios.get(`/api/inquiries`, {
         withCredentials: true,
       });
       setInquiries(res.data);
@@ -42,7 +42,7 @@ export default function AdminInquiries() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries/${id}`, {
+      await axios.delete(`/api/inquiries/${id}`, {
         withCredentials: true,
       });
       setInquiries(inquiries.filter((inq) => inq._id !== id));
@@ -58,7 +58,7 @@ export default function AdminInquiries() {
     try {
       await Promise.all(
         selectedInquiries.map((id) =>
-          axios.delete(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries/${id}`, { withCredentials: true })
+          axios.delete(`/api/inquiries/${id}`, { withCredentials: true })
         )
       );
       setInquiries(inquiries.filter((inq) => !selectedInquiries.includes(inq._id)));
@@ -74,7 +74,7 @@ export default function AdminInquiries() {
   const handleMarkRead = async (id, isRead) => {
     try {
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries/${id}`,
+        `/api/inquiries/${id}`,
         { isRead },
         { withCredentials: true }
       );
@@ -88,7 +88,7 @@ export default function AdminInquiries() {
     try {
       await Promise.all(
         selectedInquiries.map((id) =>
-          axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries/${id}`, { isRead }, { withCredentials: true })
+          axios.patch(`/api/inquiries/${id}`, { isRead }, { withCredentials: true })
         )
       );
       setInquiries(
@@ -107,7 +107,7 @@ export default function AdminInquiries() {
   const handleRespond = async (id, email) => {
     try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries/${id}/respond`,
+        `/api/inquiries/${id}/respond`,
         { responseMessage: responseText },
         { withCredentials: true }
       );

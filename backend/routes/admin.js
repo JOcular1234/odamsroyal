@@ -158,6 +158,8 @@
 //   );
 //   res.status(200).json({ message: 'Logout successful' });
 // });
+
+// backednd/routes/admin.js
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');

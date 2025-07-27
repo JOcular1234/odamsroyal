@@ -19,7 +19,7 @@ export default function AdminAppointments() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/appointments`, { withCredentials: true });
+      const res = await axios.get(`/api/appointments`, { withCredentials: true });
       setAppointments(res.data);
     } catch (err) {
       if (err.response && err.response.status === 401) {
@@ -34,7 +34,7 @@ export default function AdminAppointments() {
   async function updateStatus(id, status) {
     setUpdating(id + status);
     try {
-      await axios.patch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/appointments/${id}`, { status }, { withCredentials: true });
+      await axios.patch(`/api/appointments/${id}`, { status }, { withCredentials: true });
       fetchAppointments();
     } catch (err) {
       alert('Failed to update status');
