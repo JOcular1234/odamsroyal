@@ -103,7 +103,8 @@ useEffect(() => {
   //     setSubmitting(false);
   //   }
   // };
-// frontend/src/app/admin/login/page.jsx
+  // In your frontend/src/app/admin/login/page.jsx - Replace the handleSubmit function
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   if (!validateForm()) return;
@@ -118,9 +119,10 @@ const handleSubmit = async (e) => {
     });
     if (res.ok) {
       toast.success('Login successful! Redirecting...');
+      // Wait a bit for cookie to be set
       setTimeout(() => {
-        router.push('/admin/inquiries');
-      }, 500); // Delay to ensure cookie is set
+        window.location.href = '/admin/inquiries'; // Force full page navigation
+      }, 500);
     } else {
       const data = await res.json();
       setError(data.message || 'Invalid credentials');
@@ -133,7 +135,6 @@ const handleSubmit = async (e) => {
     setSubmitting(false);
   }
 };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4 sm:px-6 lg:px-8">
