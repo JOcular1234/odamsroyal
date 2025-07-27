@@ -232,6 +232,8 @@ router.post('/login', async (req, res) => {
       sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 60 * 60 * 2, // 2 hours
+      domain: isProduction ? '.odamsroyal.vercel.app' : undefined,
+
     };
 
     res.setHeader('Set-Cookie', cookie.serialize('admin_token', token, cookieOptions));
