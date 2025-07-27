@@ -36,8 +36,8 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://odamsroyal.vercel.app'
-];
+  process.env.FRONTEND_URL
+].filter(Boolean);
 console.log('Allowed Origins:', allowedOrigins);
 
 

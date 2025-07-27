@@ -68,6 +68,25 @@
 
 // // Protected dashboard route
 // router.get('/dashboard', verifyToken, (req, res) => {
+
+// // Debug endpoint for admin authentication
+// if (process.env.NODE_ENV !== 'production') {
+//   router.get('/auth-debug', (req, res) => {
+//     const cookieHeader = req.headers.cookie || '';
+//     const cookies = cookie.parse(cookieHeader);
+//     const token = cookies.admin_token;
+//     res.json({
+//       message: 'Admin Auth Debug',
+//       env: process.env.NODE_ENV,
+//       cookies,
+//       cookieHeader,
+//       token,
+//       headers: req.headers,
+//       user: req.user || null
+//     });
+//   });
+// }
+
 //   try {
 //     res.status(200).json({ message: 'Welcome to the admin dashboard' });
 //   } catch (error) {
@@ -224,6 +243,22 @@ router.post('/login', async (req, res) => {
 
 // Protected dashboard route
 router.get('/dashboard', verifyToken, (req, res) => {
+if (process.env.NODE_ENV !== 'production') {
+  router.get('/auth-debug', (req, res) => {
+    const cookieHeader = req.headers.cookie || '';
+    const cookies = cookie.parse(cookieHeader);
+    const token = cookies.admin_token;
+    res.json({
+      message: 'Admin Auth Debug',
+      env: process.env.NODE_ENV,
+      cookies,
+      cookieHeader,
+      token,
+      headers: req.headers,
+      user: req.user || null
+    });
+  });
+}
   try {
     res.status(200).json({ message: 'Welcome to the admin dashboard' });
   } catch (error) {
