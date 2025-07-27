@@ -15,15 +15,34 @@ export default function AdminHeader() {
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS!
   
   // Logout handler (defined as a function so it can be used in both conditions)
-  const handleLogout = async () => {
-    await fetch('/api/admin/logout', {
+  // const handleLogout = async () => {
+  //   await fetch('/api/admin/logout', {
+  //     method: 'POST',
+  //     credentials: 'include',
+  //   });
+  //   // Remove cookie on frontend (for extra safety)
+  //   document.cookie = 'admin_token=; Max-Age=0; path=/;';
+  //   router.push('/admin/login');
+  // };
+  // frontend/src/components/AdminHeader.jsx
+const handleLogout = async () => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logout`, {
       method: 'POST',
       credentials: 'include',
     });
-    // Remove cookie on frontend (for extra safety)
-    document.cookie = 'admin_token=; Max-Age=0; path=/;';
+    if (res.ok) {
+      // Clear cookie on frontend
+      document.cookie = 'admin_token=; Max-Age=0; path=/;';
+      router.push('/admin/login');
+    } else {
+      console.error('Logout failed:', res.status, await res.text());
+    }
+  } catch (error) {
+    console.error('Logout error:', error.message);
     router.push('/admin/login');
-  };
+  }
+};
 
   // Close avatar dropdown on outside click
   useEffect(() => {
