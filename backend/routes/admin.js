@@ -76,6 +76,12 @@ router.get('/dashboard', verifyToken, (req, res) => {
   }
 });
 
+// backend/routes/admin.js
+router.get('/debug/cookies', (req, res) => {
+  const cookies = cookie.parse(req.headers.cookie || '');
+  res.status(200).json({ cookies });
+});
+
 // Admin-only property creation
 const Property = require('../models/Properties');
 router.post('/properties', verifyToken, async (req, res) => {

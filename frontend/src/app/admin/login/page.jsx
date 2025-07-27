@@ -13,19 +13,37 @@ export default function AdminLogin() {
   const router = useRouter();
 
   // Redirect if already authenticated
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          router.replace('/admin/inquiries');
-        }
-      } catch {}
-    };
-    checkAuth();
-  }, [router]);
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
+  //         credentials: 'include',
+  //       });
+  //       if (res.ok) {
+  //         router.replace('/admin/inquiries');
+  //       }
+  //     } catch {}
+  //   };
+  //   checkAuth();
+  // }, [router]);
+useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/dashboard`, {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        console.log('Auth check successful, redirecting to /admin/inquiries');
+        router.replace('/admin/inquiries');
+      } else {
+        console.error('Auth check failed:', res.status, await res.text());
+      }
+    } catch (error) {
+      console.error('Auth check error:', error.message);
+    }
+  };
+  checkAuth();
+}, [router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
