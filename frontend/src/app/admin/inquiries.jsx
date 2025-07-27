@@ -15,7 +15,7 @@ export default function AdminInquiries() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries`);
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inquiries`, { withCredentials: true });
       setInquiries(res.data);
     } catch (err) {
       setError('Failed to fetch inquiries');
