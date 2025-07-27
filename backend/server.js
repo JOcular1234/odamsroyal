@@ -33,27 +33,34 @@ const app = express();
 //     credentials: true,
 //   })
 // );
+
+// In your backend/server.js - Replace the CORS configuration
+ddleware
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://odamsroyal.vercel.app',
+  'https://odamsroyal.vercel.app'
 ];
 console.log('Allowed Origins:', allowedOrigins);
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log('CORS Origin:', origin);
-      if (!origin || allowedOrigins.includes(origin)) {
+      console.log('CORS Origin:', origin); 
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'), false);
       }
-      console.error('CORS rejected for origin:', origin);
-      return callback(new Error('Not allowed by CORS'), false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie']
   })
 );
+
 app.use(express.json());
 
 // Connect to MongoDB
