@@ -75,34 +75,65 @@ useEffect(() => {
 
   const isFormValid = () => form.username.length >= 3 && form.password.length >= 6;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setError('');
-    setSubmitting(true);
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-        credentials: 'include',
-      });
-      if (res.ok) {
-        toast.success('Login successful! Redirecting...');
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) return;
+  //   setError('');
+  //   setSubmitting(true);
+  //   try {
+  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(form),
+  //       credentials: 'include',
+  //     });
+  //     if (res.ok) {
+  //       toast.success('Login successful! Redirecting...');
+  //       router.push('/admin/inquiries');
+  //       router.refresh();
+  //     } else {
+  //       const data = await res.json();
+  //       setError(data.message || 'Invalid credentials');
+  //       toast.error(data.message || 'Invalid credentials');
+  //     }
+  //   } catch (error) {
+  //     setError('Error logging in. Please try again.');
+  //   toast.error('Error logging in. Please try again.');
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+// frontend/src/app/admin/login/page.jsx
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  setError('');
+  setSubmitting(true);
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+      credentials: 'include',
+    });
+    if (res.ok) {
+      toast.success('Login successful! Redirecting...');
+      setTimeout(() => {
         router.push('/admin/inquiries');
-        router.refresh();
-      } else {
-        const data = await res.json();
-        setError(data.message || 'Invalid credentials');
-        toast.error(data.message || 'Invalid credentials');
-      }
-    } catch (error) {
-      setError('Error logging in. Please try again.');
-    toast.error('Error logging in. Please try again.');
-    } finally {
-      setSubmitting(false);
+      }, 500); // Delay to ensure cookie is set
+    } else {
+      const data = await res.json();
+      setError(data.message || 'Invalid credentials');
+      toast.error(data.message || 'Invalid credentials');
     }
-  };
+  } catch (error) {
+    setError('Error logging in. Please try again.');
+    toast.error('Error logging in. Please try again.');
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 px-4 sm:px-6 lg:px-8">
