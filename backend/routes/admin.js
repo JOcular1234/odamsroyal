@@ -139,9 +139,6 @@
 //   );
 //   res.status(200).json({ message: 'Logout successful' });
 // });
-
-module.exports = { router, verifyToken };
-// backend/routes/admin.js
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
@@ -171,8 +168,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// In your backend/routes/admin.js - Replace the cookie setting in login route
-
+// Login route
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -222,12 +218,6 @@ router.get('/dashboard', verifyToken, (req, res) => {
   }
 });
 
-// backend/routes/admin.js
-router.get('/debug/cookies', (req, res) => {
-  const cookies = cookie.parse(req.headers.cookie || '');
-  res.status(200).json({ cookies });
-});
-
 // Admin-only property creation
 const Property = require('../models/Properties');
 router.post('/properties', verifyToken, async (req, res) => {
@@ -272,22 +262,6 @@ router.get('/appointments', verifyToken, async (req, res) => {
 });
 
 // Logout route
-// router.post('/logout', (req, res) => {
-//   res.setHeader(
-//     'Set-Cookie',
-//     require('cookie').serialize('admin_token', '', {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === 'production',
-//       sameSite: 'lax',
-//       path: '/',
-//       maxAge: 0,
-//     })
-//   );
-//   res.status(200).json({ message: 'Logout successful' });
-// });
-
-// In your backend/routes/admin.js - Replace the logout route
-
 router.post('/logout', (req, res) => {
   res.setHeader(
     'Set-Cookie',
@@ -302,4 +276,6 @@ router.post('/logout', (req, res) => {
   );
   res.status(200).json({ message: 'Logout successful' });
 });
+
+// MOVE THIS TO THE END - AFTER ALL ROUTES ARE DEFINED
 module.exports = { router, verifyToken };
