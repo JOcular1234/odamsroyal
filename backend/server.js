@@ -14,12 +14,14 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
-  process.env.FRONTEND_URL || 'https://odamsroyal.vercel.app'
+  'https://odamsroyal.vercel.app'
 ];
+console.log('Allowed Origins:', allowedOrigins);
 
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log('CORS Origin:', origin); 
       // allow requests with no origin (like mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
