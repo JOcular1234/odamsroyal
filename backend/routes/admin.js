@@ -203,11 +203,12 @@ router.post('/login', async (req, res) => {
       expiresIn: JWT_EXPIRES_IN,
     });
 
-    // CROSS-ORIGIN COOKIE SETTINGS
+    // Set cookie options based on environment
+    const isProduction = process.env.NODE_ENV === 'production';
     const cookieOptions = {
       httpOnly: true,
-      secure: true, // Always true for HTTPS
-      sameSite: 'none', // Required for cross-origin
+      secure: isProduction, // true in production, false in dev
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
       maxAge: 60 * 60 * 2, // 2 hours
     };
@@ -276,15 +277,16 @@ router.get('/appointments', verifyToken, async (req, res) => {
 
 // Logout route
 router.post('/logout', (req, res) => {
+  // Set cookie options for clearing based on environment
+  const isProduction = process.env.NODE_ENV === 'production';
   res.setHeader(
     'Set-Cookie',
     require('cookie').serialize('admin_token', '', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
       path: '/',
-      maxAge: 0,
-      domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
+      maxAge: 0
     })
   );
   res.status(200).json({ message: 'Logout successful' });
