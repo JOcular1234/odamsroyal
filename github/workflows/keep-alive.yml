@@ -1,0 +1,14 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # Every 10 minutes (UTC time)
+  workflow_dispatch:         # Allow manual run from GitHub
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send GET request to backend
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://odamsroyal.onrender.com
