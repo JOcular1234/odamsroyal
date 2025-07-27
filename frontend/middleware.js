@@ -56,27 +56,27 @@
 // };
 
 // frontend/src/middleware.js
-// import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-// export function middleware(req) {
-//   const { pathname } = req.nextUrl;
-//   console.log('Middleware - Pathname:', pathname);
-//   if (pathname === '/admin/login') {
-//     return NextResponse.next();
-//   }
-//   if (pathname.startsWith('/admin')) {
-//     const token = req.cookies.get('admin_token')?.value;
-//     console.log('Middleware - Pathname:', pathname, 'Token:', token);
-//     if (!token) {
-//       console.log('Middleware - Redirecting to /admin/login');
-//       return NextResponse.redirect(new URL('/admin/login', req.url));
-//     }
-//     // Debug: Log token validation
-//     console.log('Middleware - Token found, allowing access');
-//   }
-//   return NextResponse.next();
-// }
+export function middleware(req) {
+  const { pathname } = req.nextUrl;
+  console.log('Middleware - Pathname:', pathname);
+  if (pathname === '/admin/login') {
+    return NextResponse.next();
+  }
+  if (pathname.startsWith('/admin')) {
+    const token = req.cookies.get('admin_token')?.value;
+    console.log('Middleware - Pathname:', pathname, 'Token:', token);
+    if (!token) {
+      console.log('Middleware - Redirecting to /admin/login');
+      return NextResponse.redirect(new URL('/admin/login', req.url));
+    }
+    // Debug: Log token validation
+    console.log('Middleware - Token found, allowing access');
+  }
+  return NextResponse.next();
+}
 
-// export const config = {
-//   matcher: ['/admin/:path*'],
-// };
+export const config = {
+  matcher: ['/admin/:path*'],
+};
