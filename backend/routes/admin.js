@@ -152,13 +152,28 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = '2h';
 
 // Middleware to verify JWT
+// In your backend/routes/admin.js - Replace the verifyToken middleware
+
 const verifyToken = (req, res, next) => {
   try {
+    let token;
+    
+    // First try to get token from cookies
     const cookies = cookie.parse(req.headers.cookie || '');
-    const token = cookies.admin_token;
+    token = cookies.admin_token;
+    
+    // If no cookie token, try Authorization header
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+    
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
+    
     const decoded = jwt.verify(token, JWT_SECRET);
     req.user = decoded;
     next();
@@ -167,8 +182,8 @@ const verifyToken = (req, res, next) => {
     return res.status(401).json({ message: 'Invalid token' });
   }
 };
+// In your backend/routes/admin.js - Replace the login route cookie setting
 
-// Login route
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -188,20 +203,18 @@ router.post('/login', async (req, res) => {
       expiresIn: JWT_EXPIRES_IN,
     });
 
-    // FIXED COOKIE SETTINGS
-    res.setHeader(
-      'Set-Cookie',
-      cookie.serialize('admin_token', token, {
-        httpOnly: true,
-        secure: true, // Always true for production
-        sameSite: 'none', // Required for cross-origin
-        path: '/',
-        maxAge: 60 * 60 * 2, // 2 hours
-        domain: process.env.NODE_ENV === 'production' ? undefined : 'localhost'
-      })
-    );
+    // CROSS-ORIGIN COOKIE SETTINGS
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true, // Always true for HTTPS
+      sameSite: 'none', // Required for cross-origin
+      path: '/',
+      maxAge: 60 * 60 * 2, // 2 hours
+    };
 
-    res.status(200).json({ message: 'Login successful' });
+    res.setHeader('Set-Cookie', cookie.serialize('admin_token', token, cookieOptions));
+
+    res.status(200).json({ message: 'Login successful', token }); // Also return token
   } catch (error) {
     console.error('Login error:', error.message);
     res.status(500).json({ message: 'Server error during login', details: error.message });

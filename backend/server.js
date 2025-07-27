@@ -34,13 +34,14 @@ const app = express();
 //   })
 // );
 
-// In your backend/server.js - Replace the CORS configuration
-// ddleware/
 const allowedOrigins = [
   'http://localhost:3000',
   'https://odamsroyal.vercel.app'
 ];
 console.log('Allowed Origins:', allowedOrigins);
+
+
+// In your backend/server.js - Replace the CORS configuration
 
 app.use(
   cors({
@@ -56,10 +57,16 @@ app.use(
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie'],
     exposedHeaders: ['Set-Cookie']
   })
 );
+
+// Add this before your routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use(express.json());
 
