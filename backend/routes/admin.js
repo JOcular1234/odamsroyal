@@ -46,8 +46,7 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ username: admin.username, role: 'admin' }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
-      domain: '.odamsroyal.vercel.app',
+      expiresIn: JWT_EXPIRES_IN
     });
 
     res.setHeader(
