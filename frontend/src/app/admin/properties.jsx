@@ -16,7 +16,7 @@ export default function AdminProperties() {
     setError('');
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties`, {
+      const res = await axios.get('/api/admin/properties', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
