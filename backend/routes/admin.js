@@ -219,16 +219,16 @@ router.post('/login', async (req, res) => {
 
     // Set cookie without domain restriction for cross-domain compatibility
     res.setHeader(
-      'Set-Cookie',
-      cookie.serialize('admin_token', token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 2, // 2 hours
-        // Remove domain restriction to allow cross-domain cookies
-      })
-    );
+  'Set-Cookie',
+  cookie.serialize('admin_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 2, // 2 hours
+    domain: process.env.NODE_ENV === 'production' ? '.odamsroyal.vercel.app' : undefined
+  })
+);
 
     res.status(200).json({ 
       message: 'Login successful',
@@ -414,6 +414,7 @@ router.post('/logout', (req, res) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 0,
+      domain: process.env.NODE_ENV === 'production' ? '.odamsroyal.vercel.app' : undefined
     })
   );
   res.status(200).json({ message: 'Logout successful' });
