@@ -15,7 +15,12 @@ export default function AdminProperties() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties`);
+      const token = localStorage.getItem('admin_token');
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setProperties(res.data);
     } catch (err) {
       setError('Failed to fetch properties');
