@@ -19,7 +19,13 @@ export default function AdminAppointments() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get(`/api/appointments`, { withCredentials: true });
+      const token = localStorage.getItem('admin_token');
+      const res = await axios.get(`/api/appointments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       setAppointments(res.data);
     } catch (err) {
       if (err.response && err.response.status === 401) {
@@ -34,7 +40,13 @@ export default function AdminAppointments() {
   async function updateStatus(id, status) {
     setUpdating(id + status);
     try {
-      await axios.patch(`/api/appointments/${id}`, { status }, { withCredentials: true });
+      const token = localStorage.getItem('admin_token');
+    await axios.patch(`/api/appointments/${id}`, { status }, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
       fetchAppointments();
     } catch (err) {
       alert('Failed to update status');

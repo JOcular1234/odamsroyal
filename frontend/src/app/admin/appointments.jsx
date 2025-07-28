@@ -160,6 +160,7 @@ export default function AdminAppointments() {
       const token = localStorage.getItem('admin_token');
       console.log('Fetching appointments with token:', token ? 'Present' : 'Missing');
 
+      // const response = await fetch(`${API_URL}/api/appointments`, {
       const response = await fetch(`${API_URL}/api/appointments`, {
         credentials: 'include',
         headers: {

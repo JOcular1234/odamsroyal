@@ -30,8 +30,12 @@ export default function AdminInquiries() {
     setLoading(true);
     setError('');
     try {
+      const token = localStorage.getItem('admin_token');
       const res = await axios.get(`/api/inquiries`, {
-        withCredentials: true,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
       setInquiries(res.data);
     } catch (err) {
@@ -42,8 +46,12 @@ export default function AdminInquiries() {
 
   const handleDelete = async (id) => {
     try {
+      const token = localStorage.getItem('admin_token');
       await axios.delete(`/api/inquiries/${id}`, {
-        withCredentials: true,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
       setInquiries(inquiries.filter((inq) => inq._id !== id));
       setShowDeleteModal(null);
@@ -56,9 +64,15 @@ export default function AdminInquiries() {
 
   const handleBulkDelete = async () => {
     try {
+      const token = localStorage.getItem('admin_token');
       await Promise.all(
         selectedInquiries.map((id) =>
-          axios.delete(`/api/inquiries/${id}`, { withCredentials: true })
+          axios.delete(`/api/inquiries/${id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          })
         )
       );
       setInquiries(inquiries.filter((inq) => !selectedInquiries.includes(inq._id)));
@@ -73,10 +87,16 @@ export default function AdminInquiries() {
 
   const handleMarkRead = async (id, isRead) => {
     try {
+      const token = localStorage.getItem('admin_token');
       await axios.patch(
         `/api/inquiries/${id}`,
         { isRead },
-        { withCredentials: true }
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
       setInquiries(inquiries.map((inq) => (inq._id === id ? { ...inq, isRead } : inq)));
     } catch (err) {
@@ -86,9 +106,15 @@ export default function AdminInquiries() {
 
   const handleBulkMarkRead = async (isRead) => {
     try {
+      const token = localStorage.getItem('admin_token');
       await Promise.all(
         selectedInquiries.map((id) =>
-          axios.patch(`/api/inquiries/${id}`, { isRead }, { withCredentials: true })
+          axios.patch(`/api/inquiries/${id}`, { isRead }, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          })
         )
       );
       setInquiries(
@@ -106,10 +132,16 @@ export default function AdminInquiries() {
 
   const handleRespond = async (id, email) => {
     try {
+      const token = localStorage.getItem('admin_token');
       await axios.post(
         `/api/inquiries/${id}/respond`,
         { responseMessage: responseText },
-        { withCredentials: true }
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
       setInquiries(
         inquiries.map((inq) => (inq._id === id ? { ...inq, responded: true } : inq))
