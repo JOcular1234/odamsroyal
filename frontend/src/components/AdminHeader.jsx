@@ -201,7 +201,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { BuildingOffice2Icon, ClipboardDocumentListIcon, CalendarDaysIcon, ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import authManager from '../utils/auth';
+import authManager from '../utils/adminAuth';
 
 export default function AdminHeader() {
   const pathname = usePathname();
