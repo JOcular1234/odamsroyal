@@ -12,42 +12,17 @@ dotenv.config();
 const app = express();
 
 // Middleware
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://odamsroyal.vercel.app'
-];
-console.log('Allowed Origins:', allowedOrigins);
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      console.log('CORS Origin:', origin); 
-      // allow requests with no origin (like mobile apps, curl, etc.)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error('Not allowed by CORS'), false);
-      }
-    },
-    credentials: true,
-  })
-);
-
 // const allowedOrigins = [
 //   'http://localhost:3000',
-//   process.env.FRONTEND_URL
-// ].filter(Boolean);
+//   'https://odamsroyal.vercel.app'
+// ];
 // console.log('Allowed Origins:', allowedOrigins);
-
-
-// // In your backend/server.js - Replace the CORS configuration
 
 // app.use(
 //   cors({
 //     origin: function (origin, callback) {
 //       console.log('CORS Origin:', origin); 
-//       // Allow requests with no origin (like mobile apps, curl, etc.)
+//       // allow requests with no origin (like mobile apps, curl, etc.)
 //       if (!origin) return callback(null, true);
 //       if (allowedOrigins.includes(origin)) {
 //         return callback(null, true);
@@ -56,11 +31,36 @@ app.use(
 //       }
 //     },
 //     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie'],
-//     exposedHeaders: ['Set-Cookie']
 //   })
 // );
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://odamsroyal.vercel.app'
+];
+console.log('Allowed Origins:', allowedOrigins);
+
+
+// In your backend/server.js - Replace the CORS configuration
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log('CORS Origin:', origin); 
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'Set-Cookie'],
+    exposedHeaders: ['Set-Cookie']
+  })
+);
 
 // Add this before your routes
 app.use((req, res, next) => {

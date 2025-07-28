@@ -47,6 +47,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ username: admin.username, role: 'admin' }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
+      domain: '.odamsroyal.vercel.app',
     });
 
     res.setHeader(
@@ -57,6 +58,7 @@ router.post('/login', async (req, res) => {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
         maxAge: 60 * 60 * 2, // 2 hours
+    domain: '.odamsroyal.vercel.app',
       })
     );
 
