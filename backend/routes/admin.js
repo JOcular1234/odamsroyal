@@ -197,7 +197,49 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Login route
+// // Login route
+// router.post('/login', async (req, res) => {
+//   try {
+//     const { username, password } = req.body;
+//     if (!username || !password) {
+//       return res.status(400).json({ message: 'Username and password are required' });
+//     }
+//     const admin = await findAdminByUsername(username);
+//     if (!admin) {
+//       return res.status(401).json({ message: 'Invalid credentials' });
+//     }
+//     const isPasswordValid = await bcrypt.compare(password, admin.password);
+//     if (!isPasswordValid) {
+//       return res.status(401).json({ message: 'Invalid credentials' });
+//     }
+
+//     const token = jwt.sign({ username: admin.username, role: 'admin' }, JWT_SECRET, {
+//       expiresIn: JWT_EXPIRES_IN
+//     });
+
+//     // Set cookie without domain restriction for cross-domain compatibility
+//     res.setHeader(
+//   'Set-Cookie',
+//   cookie.serialize('admin_token', token, {
+//     httpOnly: true,
+//     secure: process.env.NODE_ENV === 'production',
+//     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+//     path: '/',
+//     maxAge: 60 * 60 * 2, // 2 hours
+//     domain: process.env.NODE_ENV === 'production' ? '.odamsroyal.vercel.app' : undefined
+//   })
+// );
+
+//     res.status(200).json({ 
+//       message: 'Login successful',
+//       token: token // Also send token in response for frontend to store
+//     });
+//   } catch (error) {
+//     console.error('Login error:', error.message);
+//     res.status(500).json({ message: 'Server error during login', details: error.message });
+//   }
+// });
+
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -214,25 +256,25 @@ router.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign({ username: admin.username, role: 'admin' }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN
+      expiresIn: JWT_EXPIRES_IN,
     });
 
-    // Set cookie without domain restriction for cross-domain compatibility
+    // Set cookie with proper cross-origin settings
     res.setHeader(
-  'Set-Cookie',
-  cookie.serialize('admin_token', token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    path: '/',
-    maxAge: 60 * 60 * 2, // 2 hours
-    domain: process.env.NODE_ENV === 'production' ? '.odamsroyal.vercel.app' : undefined
-  })
-);
+      'Set-Cookie',
+      cookie.serialize('admin_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
+        path: '/',
+        maxAge: 60 * 60 * 2, // 2 hours
+        // Remove domain to allow cross-origin cookie sharing
+      })
+    );
 
-    res.status(200).json({ 
+    res.status(200).json({
       message: 'Login successful',
-      token: token // Also send token in response for frontend to store
+      token, // Send token in response for frontend to store
     });
   } catch (error) {
     console.error('Login error:', error.message);

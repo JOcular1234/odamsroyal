@@ -1,8 +1,46 @@
+"use client";
 // frontend/src/app/admin/appointments.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 export default function AdminProperties() {
+  // ...existing state
+
+  // Update property handler (example: toggles a dummy 'featured' field)
+  async function handleUpdateProperty(id) {
+    let token = null;
+    if (typeof window !== "undefined") {
+      token = localStorage.getItem('admin_token');
+    }
+    try {
+      await axios.patch(`/api/admin/properties/${id}`, { featured: true }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchProperties();
+    } catch (err) {
+      alert('Failed to update property');
+    }
+  }
+
+  // Delete property handler
+  async function handleDeleteProperty(id) {
+    let token = null;
+    if (typeof window !== "undefined") {
+      token = localStorage.getItem('admin_token');
+    }
+    try {
+      await axios.delete(`/api/admin/properties/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      fetchProperties();
+    } catch (err) {
+      alert('Failed to delete property');
+    }
+  }
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,8 +53,11 @@ export default function AdminProperties() {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('admin_token');
-      const res = await axios.get('/api/properties', {
+      let token = null;
+      if (typeof window !== "undefined") {
+        token = localStorage.getItem('admin_token');
+      }
+      const res = await axios.get('/api/admin/properties', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -45,6 +86,7 @@ export default function AdminProperties() {
                 <th className="py-3 px-4 text-left">Title</th>
                 <th className="py-3 px-4 text-left">Description</th>
                 <th className="py-3 px-4 text-left">Image</th>
+            <th className="py-3 px-4 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -54,6 +96,16 @@ export default function AdminProperties() {
                   <td className="py-2 px-4 text-neutral">{p.description}</td>
                   <td className="py-2 px-4">
                     <img src={p.image} alt={p.title} className="w-24 h-16 object-cover rounded shadow" />
+                  </td>
+                  <td className="py-2 px-4">
+                    <button
+                      className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                      onClick={() => handleUpdateProperty(p._id)}
+                    >Update</button>
+                    <button
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                      onClick={() => handleDeleteProperty(p._id)}
+                    >Delete</button>
                   </td>
                 </tr>
               ))}
