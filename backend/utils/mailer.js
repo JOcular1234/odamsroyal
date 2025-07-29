@@ -35,7 +35,16 @@ async function sendInquiryResponse(to, subject, responseMessage, inquiry) {
 }
 
 async function sendAppointmentApproved(appointment) {
-  if (!appointment.email) return;
+  if (!appointment.email) {
+    console.error('No email address found in appointment:', appointment);
+    return;
+  }
+
+  console.log('DEBUG: Email configuration check');
+  console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Missing');
+  console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Missing');
+  console.log('Sending appointment approval email to:', appointment.email);
+
   const html = `
     <div style="font-family: Arial, sans-serif; color: #222;">
       <h2 style="color: #1a56db;">Odamz Royal - Appointment Approved</h2>
@@ -53,7 +62,15 @@ async function sendAppointmentApproved(appointment) {
     subject: 'Your Appointment is Approved',
     html,
   };
-  return transporter.sendMail(mailOptions);
+  
+  try {
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', result.messageId);
+    return result;
+  } catch (error) {
+    console.error('Detailed email sending error:', error);
+    throw error;
+  }
 }
 
 module.exports = { sendInquiryResponse, sendAppointmentApproved };

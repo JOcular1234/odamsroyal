@@ -135,6 +135,18 @@ router.patch('/:id', verifyToken, async (req, res) => {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
+    // Send email notification if appointment is approved
+    if (status === 'approved') {
+      try {
+        const { sendAppointmentApproved } = require('../utils/mailer');
+        await sendAppointmentApproved(appointment);
+        console.log('Approval email sent successfully to:', appointment.email);
+      } catch (mailErr) {
+        console.error('Failed to send approval email:', mailErr);
+        // Don't fail the request if email fails, just log the error
+      }
+    }
+
     console.log('Appointment updated successfully:', appointment._id);
     res.json(appointment);
   } catch (error) {
