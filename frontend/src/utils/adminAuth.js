@@ -1,6 +1,5 @@
 // // frontend/src/utils/adminAuth.js
-import dotenv from 'dotenv';
-dotenv.config();
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamsroyal.onrender.com';
 
 class SecureAdminAuth {
