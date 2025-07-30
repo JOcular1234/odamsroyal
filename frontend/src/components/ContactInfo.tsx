@@ -1,5 +1,4 @@
 // // frontend/src/components/ContactInfo.jsx
-/// <reference types="framer-motion" />
 import Link from 'next/link';
 import { motion, Variants } from 'framer-motion';
 import { MapPinIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';

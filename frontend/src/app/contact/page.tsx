@@ -1,5 +1,4 @@
 // // frontend/src/app/contact/page.jsx
-/// <reference types="framer-motion" />
 "use client";
 import { useState, useRef } from 'react';
 import axios from 'axios';

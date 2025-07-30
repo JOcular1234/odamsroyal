@@ -1,5 +1,5 @@
 // // frontend/src/components/AppointmentForm.jsx
-/// <reference types="framer-motion" />
+
 "use client";
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';

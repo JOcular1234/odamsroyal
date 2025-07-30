@@ -1,5 +1,4 @@
 // // frontend/src/app/appointment/page.jsx
-/// <reference types="framer-motion" />
 "use client";
 import { useRef } from 'react';
 import Link from 'next/link';
