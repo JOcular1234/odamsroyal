@@ -14,7 +14,7 @@ const app = express();
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://odamsroyal.vercel.app',
+  'https://odamzroyal.vercel.app',
 ];
 
 app.use(

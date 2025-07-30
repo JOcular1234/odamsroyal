@@ -5,7 +5,7 @@ export const metadata = {
   openGraph: {
     title: 'Our Services | Odamz Royal Consultz Nig Ltd',
     description: 'Comprehensive real estate services for clients in Nigeria.',
-    url: 'https://odamsroyal.vercel.app/services', // Replace with your actual domain
+    url: 'https://odamzroyal.vercel.app/services', // Replace with your actual domain
     type: 'website',
     images: ['https://res.cloudinary.com/drkli5pwj/image/upload/v1753870038/services_wzople.png'], // Replace with your actual image
   },

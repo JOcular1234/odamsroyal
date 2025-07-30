@@ -12,7 +12,7 @@ export const Metadata = {
   openGraph: {
     title: 'Properties | Odamz Royal Consultz Nig Ltd',
     description: 'Discover premium real estate listings for sale and rent across Nigeria.',
-    url: 'https://odamsroyal.vercel.app/properties',
+    url: 'https://odamzroyal.vercel.app/properties',
     type: 'website',
     images: ['https://res.cloudinary.com/drkli5pwj/image/upload/v1753870038/services_wzople.png'],
   },

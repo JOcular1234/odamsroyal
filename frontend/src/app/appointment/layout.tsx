@@ -5,7 +5,7 @@ export const metadata = {
   openGraph: {
     title: 'Book an Appointment | Odamz Royal Consultz Nig Ltd',
     description: 'Schedule a one-on-one session with our expert advisors for real estate services.',
-    url: 'https://odamsroyal.vercel.app/appointment', // Your provided domain
+    url: 'https://odamzroyal.vercel.app/appointment', // Your provided domain
     type: 'website',
     images: ['https://res.cloudinary.com/drkli5pwj/image/upload/v1753869926/about_rcku5z.png'], // Your provided image
   },

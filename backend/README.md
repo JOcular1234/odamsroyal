@@ -1,6 +1,6 @@
 # OdamsRoyal Backend
 
-This is the backend API for the OdamsRoyal project, built with Node.js, Express, and MongoDB.
+This is the backend API for the OdamzRoyal project, built with Node.js, Express, and MongoDB.
 
 ## Features
 - RESTful API for properties, inquiries, appointments, and admin

@@ -256,7 +256,7 @@ router.post('/logout', (req, res) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
       maxAge: 0,
-      domain: process.env.NODE_ENV === 'production' ? '.odamsroyal.vercel.app' : undefined
+      domain: process.env.NODE_ENV === 'production' ? '.odamzroyal.vercel.app' : undefined
     })
   );
   res.status(200).json({ message: 'Logout successful' });
