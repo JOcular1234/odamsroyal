@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center font-bold text-white text-xl shadow-md">
-                O
+                <img src="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" alt="logo" title='logo' className='rounded-full' />
               </div>
               <span className="text-xl font-extrabold tracking-tight">Odamz Royal Consultz</span>
             </div>
@@ -60,7 +60,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/#contact"
+                  href="/contact"
                   className="hover:text-accent transition-colors"
                   aria-label="Contact Us"
                 >

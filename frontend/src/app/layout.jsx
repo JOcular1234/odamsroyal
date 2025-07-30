@@ -13,9 +13,9 @@ export const metadata = {
   openGraph: {
     title: 'About Us | Odamz Royal Consultz Nig Ltd',
     description: 'Discover our story, team, and commitment to excellence in real estate services.',
-    url: 'https://yourdomain.com/about',
+    url: 'https://odamsroyal.vercel.app/about', // Replace with your actual domain
     type: 'website',
-    images: ['https://yourdomain.com/preview.jpg'],
+    images: ['https://res.cloudinary.com/drkli5pwj/image/upload/v1753869926/about_rcku5z.png'],
   },
   twitter: {
     card: 'summary_large_image',

@@ -1,3 +1,4 @@
+// backend/controllers/appointmentController.js
 const Appointment = require('../models/Appointment');
 const { sendAppointmentApproved } = require('../utils/mailer');
 

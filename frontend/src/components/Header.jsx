@@ -10,8 +10,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
         {/* Logo/Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center font-bold text-white text-2xl shadow-md">
-            O
+          <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center font-bold text-white text-2xl shadow-md ">
+            <img src="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" alt="logo" title='logo' className='rounded-full' />
           </div>
           <Link href="/" className="text-white font-extrabold text-xl tracking-tight sm:text-2xl hover:text-accent transition-colors">
             Odamz Royal Consultz

@@ -1,38 +1,3 @@
-// // backend/routes/appointments.js
-// const express = require('express');
-// const router = express.Router();
-// const Appointment = require('../models/Appointment');
-
-// // Create appointment
-// router.post('/', async (req, res) => {
-//   try {
-//     const appointment = new Appointment(req.body);
-//     await appointment.save();
-//     res.status(201).json(appointment);
-//   } catch (error) {
-//     res.status(400).json({ message: 'Error booking appointment' });
-//   }
-// });
-
-// // Get all appointments (admin)
-// const { verifyToken } = require('./admin');
-
-// router.get('/', verifyToken, async (req, res) => {
-//   try {
-//     const appointments = await Appointment.find().sort({ createdAt: -1 });
-//     res.json(appointments);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching appointments' });
-//   }
-// });
-
-// // Update appointment status (approve/reject)
-// const { updateAppointmentStatus } = require('../controllers/appointmentController');
-// router.patch('/:id', verifyToken, updateAppointmentStatus);
-
-// module.exports = router;
-
-
 // backend/routes/appointments.js
 const express = require('express');
 const router = express.Router();
@@ -106,43 +71,149 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 // Update appointment status (admin only)
-router.patch('/:id', verifyToken, async (req, res) => {
+// router.patch('/:id', verifyToken, async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { status } = req.body;
+    
+//     console.log(`Updating appointment ${id} status to: ${status}`);
+    
+//     // Validate status
+//     if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
+//       return res.status(400).json({ 
+//         message: 'Invalid status. Must be pending, approved, or rejected.' 
+//       });
+//     }
+
+//     // Find and update appointment
+//     const appointment = await Appointment.findByIdAndUpdate(
+//       id,
+//       { 
+//         status, 
+//         updatedAt: new Date(),
+//         updatedBy: req.user.username // Track who updated it
+//       },
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!appointment) {
+//       return res.status(404).json({ message: 'Appointment not found' });
+//     }
+
+//     if (status === 'approved') {
+//       try {
+//         const {sendAppoitmentApproved}= require('../utils/mailer');
+//         await sendAppoitmentApproved(appointment);
+       
+
+
+//     console.log('Appointment updated successfully:', appointment._id);
+//     res.json(appointment);
+//   } catch (error) {
+//     console.error('Error updating appointment:', error);
+//     res.status(500).json({ 
+//       message: 'Error updating appointment',
+//       error: error.message 
+//     });
+//   }
+// });
+
+// Update appointment status (admin only)
+// router.patch('/:id', verifyToken, async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { status } = req.body;
+
+//     console.log(`Updating appointment ${id} status to: ${status}`);
+
+//     // Validate status
+//     if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
+//       return res.status(400).json({ 
+//         message: 'Invalid status. Must be pending, approved, or rejected.' 
+//       });
+//     }
+
+//     // Find and update appointment
+//     const appointment = await Appointment.findByIdAndUpdate(
+//       id,
+//       {
+//         status,
+//         updatedAt: new Date(),
+//         updatedBy: req.user.username // Track who updated it
+//       },
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!appointment) {
+//       return res.status(404).json({ message: 'Appointment not found' });
+//     }
+
+//     // Send email if approved
+//     if (status === 'approved') {
+//       try {
+//         const { sendAppointmentApproved } = require('../utils/mailer');
+//         await sendAppointmentApproved(appointment);
+//       } catch (emailError) {
+//         console.error('Error sending approval email:', emailError.message);
+//       }
+//     }
+
+//     console.log('Appointment updated successfully:', appointment._id);
+//     res.json(appointment);
+
+//   } catch (error) {
+//     console.error('Error updating appointment:', error);
+//     res.status(500).json({ 
+//       message: 'Error updating appointment',
+//       error: error.message 
+//     });
+//   }
+// });
+
+
+// PATCH /api/appointments/patch/:id
+router.patch('/patch/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
-    
-    console.log(`Updating appointment ${id} status to: ${status}`);
-    
-    // Validate status
-    if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
-      return res.status(400).json({ 
-        message: 'Invalid status. Must be pending, approved, or rejected.' 
-      });
-    }
+    const { status, updatedBy } = req.body;
 
-    // Find and update appointment
     const appointment = await Appointment.findByIdAndUpdate(
       id,
-      { 
-        status, 
+      {
+        status,
         updatedAt: new Date(),
-        updatedBy: req.user.username // Track who updated it
+        updatedBy: updatedBy || 'admin',
       },
-      { new: true, runValidators: true }
+      { new: true } // ✅ Ensure you get the updated document
     );
 
     if (!appointment) {
       return res.status(404).json({ message: 'Appointment not found' });
     }
 
+    console.log('Appointment after update:', appointment);
+  let emailSent = true;
+
+    // ✅ Check if email exists before sending
+    if (status === 'approved') {
+      try {
+        console.log('Preparing to send approval email to:', appointment.email);
+        const { sendAppointmentApproved } = require('../utils/mailer');
+        await sendAppointmentApproved(appointment);
+        console.log('✅ Approval email sent to:', appointment.email);
+      } catch (emailError) {
+        console.error('❌ Error sending approval email:', emailError.message);
+      }
+    }
+
+    res.json({ message: 'Appointment updated successfully', appointment });
     console.log('Appointment updated successfully:', appointment._id);
-    res.json(appointment);
+      res.json({ ...appointment.toObject(), emailSent });
+
+
   } catch (error) {
-    console.error('Error updating appointment:', error);
-    res.status(500).json({ 
-      message: 'Error updating appointment',
-      error: error.message 
-    });
+    console.error('❌ Error updating appointment:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

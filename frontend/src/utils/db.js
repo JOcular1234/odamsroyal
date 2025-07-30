@@ -1,6 +1,8 @@
 // frontend/src/utils/db.js
 import mongoose from 'mongoose';
 import Admin from '../models/Admin.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export async function dbConnect() {
   if (mongoose.connection.readyState >= 1) return;

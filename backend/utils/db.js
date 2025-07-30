@@ -1,19 +1,3 @@
-// const mongoose = require('mongoose');
-// const Admin = require('../models/Admin');
-
-// async function dbConnect() {
-//   if (mongoose.connection.readyState >= 1) return;
-//   return mongoose.connect(process.env.MONGODB_URI);
-// }
-
-// async function findAdminByUsername(username) {
-//   await dbConnect();
-//   return Admin.findOne({ username });
-// }
-
-// module.exports = { dbConnect, findAdminByUsername };
-
-
 // backend/utils/db.js
 const mongoose = require('mongoose');
 const Admin = require('../models/Admin');

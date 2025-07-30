@@ -1,115 +1,16 @@
 // // frontend/src/app/admin/appointments.jsx
-// import { useEffect, useState } from 'react';
-// import axios from 'axios';
-
-// export default function AdminAppointments() {
-//   const [appointments, setAppointments] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState('');
-//   const [updating, setUpdating] = useState('');
-
-//   useEffect(() => {
-//     fetchAppointments();
-//   }, []);
-
-//   async function fetchAppointments() {
-//     setLoading(true);
-//     setError('');
-//     try {
-//       const res = await axios.get(`/api/appointments`, { withCredentials: true });
-//       setAppointments(res.data);
-//     } catch (err) {
-//       setError('Failed to fetch appointments');
-//     }
-//     setLoading(false);
-//   }
-
-//   async function updateStatus(id, status) {
-//     setUpdating(id + status);
-//     try {
-//       await axios.patch(`/api/appointments/${id}`, { status }, { withCredentials: true });
-//       fetchAppointments();
-//     } catch (err) {
-//       alert('Failed to update status');
-//     }
-//     setUpdating('');
-//   }
-
-//   return (
-//     <section className="py-16 max-w-4xl mx-auto px-4">
-//       <h2 className="text-3xl font-bold text-center text-primary mb-8">Manage Appointments</h2>
-//       {loading ? (
-//         <p className="text-center text-neutral">Loading...</p>
-//       ) : error ? (
-//         <p className="text-center text-red-500">{error}</p>
-//       ) : appointments.length === 0 ? (
-//         <p className="text-center text-neutral">No appointments found.</p>
-//       ) : (
-//         <div className="overflow-x-auto">
-//           <table className="min-w-full bg-white rounded-xl shadow-lg">
-//             <thead>
-//               <tr className="bg-primary text-white">
-//                 <th className="py-3 px-4 text-left">Name</th>
-//                 <th className="py-3 px-4 text-left">Email</th>
-//                 <th className="py-3 px-4 text-left">Phone</th>
-//                 <th className="py-3 px-4 text-left">Service</th>
-//                 <th className="py-3 px-4 text-left">Date</th>
-//                 <th className="py-3 px-4 text-left">Status</th>
-//                 <th className="py-3 px-4 text-left">Actions</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {appointments.map((a) => (
-//                 <tr key={a._id} className="border-b last:border-none">
-//                   <td className="py-2 px-4">{a.name}</td>
-//                   <td className="py-2 px-4">{a.email}</td>
-//                   <td className="py-2 px-4">{a.phone}</td>
-//                   <td className="py-2 px-4">{a.service}</td>
-//                   <td className="py-2 px-4">{new Date(a.date).toLocaleString()}</td>
-//                   <td className="py-2 px-4 capitalize font-semibold text-sm">
-//                     <span className={
-//                       a.status === 'approved' ? 'text-green-600' :
-//                       a.status === 'rejected' ? 'text-red-600' :
-//                       'text-yellow-600'
-//                     }>{a.status}</span>
-//                   </td>
-//                   <td className="py-2 px-4 flex gap-2">
-//                     <button
-//                       className="px-3 py-1 rounded bg-green-500 text-white text-xs font-bold hover:bg-green-600 disabled:opacity-50"
-//                       disabled={a.status === 'approved' || updating}
-//                       onClick={() => updateStatus(a._id, 'approved')}
-//                     >
-//                       {updating === a._id + 'approved' ? '...' : 'Approve'}
-//                     </button>
-//                     <button
-//                       className="px-3 py-1 rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50"
-//                       disabled={a.status === 'rejected' || updating}
-//                       onClick={() => updateStatus(a._id, 'rejected')}
-//                     >
-//                       {updating === a._id + 'rejected' ? '...' : 'Reject'}
-//                     </button>
-//                   </td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </div>
-//       )}
-//     </section>
-//   );
-// } 
-
-// frontend/src/app/admin/appointments.jsx
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminHeader from '../../components/AdminHeader';
+import axios from 'axios';
 
 export default function AdminAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState('');
+  const [modal, setModal] = useState({ open: false, action: '', id: null });
   const router = useRouter();
 
   // API URL with fallback
@@ -119,7 +20,6 @@ export default function AdminAppointments() {
   useEffect(() => {
     const checkAuthAndFetch = async () => {
       try {
-        // Check if user is authenticated first
         const token = localStorage.getItem('admin_token');
         if (!token) {
           console.log('No token found, redirecting to login');
@@ -127,11 +27,10 @@ export default function AdminAppointments() {
           return;
         }
 
-        // Verify token is still valid by making a test request
         const authResponse = await fetch(`${API_URL}/api/admin/dashboard`, {
           credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -142,7 +41,6 @@ export default function AdminAppointments() {
           return;
         }
 
-        // If authenticated, fetch appointments
         await fetchAppointments();
       } catch (error) {
         console.error('Auth check failed:', error);
@@ -160,11 +58,10 @@ export default function AdminAppointments() {
       const token = localStorage.getItem('admin_token');
       console.log('Fetching appointments with token:', token ? 'Present' : 'Missing');
 
-      // const response = await fetch(`${API_URL}/api/appointments`, {
       const response = await fetch(`${API_URL}/api/appointments`, {
         credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -196,37 +93,39 @@ export default function AdminAppointments() {
     setUpdating(id + status);
     try {
       const token = localStorage.getItem('admin_token');
-      console.log(`Updating appointment ${id} to status: ${status}`);
-
-      const response = await fetch(`${API_URL}/api/appointments/${id}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      console.log('Update response status:', response.status);
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('admin_token');
-          router.push('/admin/login');
-          return;
-        }
-        throw new Error(`Failed to update status: ${response.status}`);
+      if (!token) {
+        console.log('No token, redirecting to login');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+        return;
       }
 
-      // Refresh appointments list
+      const response = await axios.patch(`${API_URL}/api/appointments/${id}`, { status }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Check if email sending failed (requires backend to return emailSent)
+      if (status === 'approved' && response.data.emailSent === false) {
+        alert('Appointment approved, but email sending failed.');
+      }
+
+      console.log('Appointment updated successfully:', response.data);
       await fetchAppointments();
-      console.log('Appointment updated successfully');
     } catch (err) {
       console.error('Error updating status:', err);
-      alert('Failed to update status: ' + err.message);
+      if (err.response?.status === 401) {
+        console.log('Unauthorized, clearing token and redirecting');
+        localStorage.removeItem('admin_token');
+        router.push('/admin/login');
+        return;
+      }
+      alert(`Failed to update status: ${err.message}`);
     } finally {
       setUpdating('');
+      setModal({ open: false, action: '', id: null });
     }
   }
 
@@ -333,13 +232,15 @@ export default function AdminAppointments() {
                         {new Date(appointment.date).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          appointment.status === 'approved' 
-                            ? 'bg-green-100 text-green-800' 
-                            : appointment.status === 'rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            appointment.status === 'approved'
+                              ? 'bg-green-100 text-green-800'
+                              : appointment.status === 'rejected'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
                           {appointment.status}
                         </span>
                       </td>
@@ -348,14 +249,14 @@ export default function AdminAppointments() {
                           <button
                             className="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             disabled={appointment.status === 'approved' || updating === appointment._id + 'approved'}
-                            onClick={() => updateStatus(appointment._id, 'approved')}
+                            onClick={() => setModal({ open: true, action: 'approved', id: appointment._id })}
                           >
                             {updating === appointment._id + 'approved' ? 'Updating...' : 'Approve'}
                           </button>
                           <button
                             className="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             disabled={appointment.status === 'rejected' || updating === appointment._id + 'rejected'}
-                            onClick={() => updateStatus(appointment._id, 'rejected')}
+                            onClick={() => setModal({ open: true, action: 'rejected', id: appointment._id })}
                           >
                             {updating === appointment._id + 'rejected' ? 'Updating...' : 'Reject'}
                           </button>
@@ -368,6 +269,40 @@ export default function AdminAppointments() {
             </div>
           )}
         </div>
+        {/* Confirmation Modal */}
+        {modal.open && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                {modal.action === 'approved' ? 'Approve Appointment' : 'Reject Appointment'}
+              </h3>
+              <p className="mb-6 text-gray-700">
+                {modal.action === 'approved'
+                  ? 'Are you sure you want to approve this appointment? The user will receive a confirmation email.'
+                  : 'Are you sure you want to reject this appointment? The user will NOT be notified.'}
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  onClick={() => setModal({ open: false, action: '', id: null })}
+                >
+                  Cancel
+                </button>
+                <button
+                  className={
+                    modal.action === 'approved'
+                      ? 'px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700'
+                      : 'px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700'
+                  }
+                  onClick={() => updateStatus(modal.id, modal.action)}
+                  disabled={updating}
+                >
+                  {updating ? 'Processing...' : modal.action === 'approved' ? 'Approve' : 'Reject'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

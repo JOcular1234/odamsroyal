@@ -1,4 +1,4 @@
-// frontend/src/components/PropertyCard.jsx
+// // frontend/src/components/PropertyCard.jsx
 "use client";
 import { useState, useRef } from 'react';
 import axios from 'axios';
@@ -104,7 +104,7 @@ export default function PropertyCard({ property }) {
       )}
 
       {/* Property Card */}
-      <div className="bg-card rounded-xl shadow-card p-4 max-w-sm w-full h-[480px] flex flex-col mx-auto transition-all duration-300 hover:shadow-xl">
+      <div className="bg-card rounded-xl shadow-card p-4 max-w-sm w-full h-[580px] flex flex-col mx-auto transition-all duration-300 hover:shadow-xl">
         {/* Image Carousel */}
         <div
           className="relative w-full flex flex-col items-center"
@@ -131,10 +131,42 @@ export default function PropertyCard({ property }) {
           </div>
         </div>
 
-        {/* Title & Description */}
-        <div className="mt-4">
+        {/* Property Details */}
+        <div className="mt-4 flex-1">
           <h4 className="text-lg font-bold text-primary truncate font-sans">{property.title}</h4>
           <p className="text-neutral text-sm mt-1 line-clamp-2 font-sans">{property.description}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-neutral font-sans">
+            {property.location && (
+              <div className="flex items-center">
+                <span className="font-semibold">Location:</span>
+                <span className="ml-1 truncate">{property.location}</span>
+              </div>
+            )}
+            {property.price && (
+              <div className="flex items-center">
+                <span className="font-semibold">Price:</span>
+                <span className="ml-1">{property.price}</span>
+              </div>
+            )}
+            {property.bedrooms && (
+              <div className="flex items-center">
+                <span className="font-semibold">Bedrooms:</span>
+                <span className="ml-1">{property.bedrooms}</span>
+              </div>
+            )}
+            {property.bathrooms && (
+              <div className="flex items-center">
+                <span className="font-semibold">Bathrooms:</span>
+                <span className="ml-1">{property.bathrooms}</span>
+              </div>
+            )}
+            {property.area && (
+              <div className="flex items-center">
+                <span className="font-semibold">Area:</span>
+                <span className="ml-1">{property.area} sq ft</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Actions Row */}
@@ -159,106 +191,106 @@ export default function PropertyCard({ property }) {
             )}
           </button>
         </div>
-
-        {/* Inquiry Modal */}
-        {modalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
-            <div className="bg-card rounded-xl shadow-card p-6 w-full max-w-md mx-4 transform transition-all duration-300 scale-100">
-              <button
-                className="absolute top-3 right-3 text-neutral hover:text-primary text-xl focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 font-sans"
-                onClick={() => setModalOpen(false)}
-                aria-label="Close Inquiry Modal"
-              >
-                ×
-              </button>
-              <h3 className="text-xl font-bold text-primary mb-4 font-sans">
-                Inquire About {property.title}
-              </h3>
-              {error && (
-                <div
-                  className="bg-error/10 border-l-4 border-error text-error p-4 rounded-xl mb-4 font-sans"
-                  aria-live="polite"
-                >
-                  {error}
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-semibold text-primary mb-1 font-sans"
-                  >
-                    Your Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    placeholder="Enter your name"
-                    className="w-full p-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button focus:border-button transition-all duration-200 font-sans"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-semibold text-primary mb-1 font-sans"
-                  >
-                    Your Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full p-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button focus:border-button transition-all duration-200 font-sans"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="message"
-                    className="block text-sm font-semibold text-primary mb-1 font-sans"
-                  >
-                    Your Inquiry
-                  </label>
-                  <textarea
-                    id="message"
-                    placeholder="Type your inquiry here..."
-                    className="w-full p-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button focus:border-button transition-all duration-200 resize-none h-24 font-sans"
-                    value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value.slice(0, maxMessageLength) })
-                    }
-                    required
-                  ></textarea>
-                  <p className="text-sm text-neutral mt-1 font-sans">
-                    {formData.message.length}/{maxMessageLength} characters
-                  </p>
-                </div>
-                <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    type="button"
-                    className="px-4 py-2 bg-neutral text-white rounded-xl font-semibold hover:bg-accent-dark transition-all duration-300 font-sans text-sm"
-                    onClick={() => setModalOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 transition-all duration-300 font-sans text-sm disabled:opacity-50"
-                    disabled={submitting}
-                  >
-                    {submitting ? 'Sending...' : 'Submit'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Inquiry Modal */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
+          <div className="bg-card rounded-xl shadow-card p-6 w-full max-w-md mx-4 transform transition-all duration-300 scale-100">
+            <button
+              className="absolute top-3 right-3 text-neutral hover:text-primary text-xl focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 font-sans"
+              onClick={() => setModalOpen(false)}
+              aria-label="Close Inquiry Modal"
+            >
+              ×
+            </button>
+            <h3 className="text-xl font-bold text-primary mb-4 font-sans">
+              Inquire About {property.title}
+            </h3>
+            {error && (
+              <div
+                className="bg-error/10 border-l-4 border-error text-error p-4 rounded-xl mb-4 font-sans"
+                aria-live="polite"
+              >
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-semibold text-primary mb-1 font-sans"
+                >
+                  Your Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Enter your name"
+                  className="w-full p-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button focus:border-button transition-all duration-200 font-sans"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-semibold text-primary mb-1 font-sans"
+                >
+                  Your Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  className="w-full p-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button focus:border-button transition-all duration-200 font-sans"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-semibold text-primary mb-1 font-sans"
+                >
+                  Your Inquiry
+                </label>
+                <textarea
+                  id="message"
+                  placeholder="Type your inquiry here..."
+                  className="w-full p-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button focus:border-button transition-all duration-200 resize-none h-24 font-sans"
+                  value={formData.message}
+                  onChange={(e) =>
+                    setFormData({ ...formData, message: e.target.value.slice(0, maxMessageLength) })
+                  }
+                  required
+                ></textarea>
+                <p className="text-sm text-neutral mt-1 font-sans">
+                  {formData.message.length}/{maxMessageLength} characters
+                </p>
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-neutral text-white rounded-xl font-semibold hover:bg-accent-dark transition-all duration-300 font-sans text-sm"
+                  onClick={() => setModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 transition-all duration-300 font-sans text-sm disabled:opacity-50"
+                  disabled={submitting}
+                >
+                  {submitting ? 'Sending...' : 'Submit'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
