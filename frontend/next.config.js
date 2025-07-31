@@ -27,14 +27,14 @@ const nextConfig = {
         source: '/api/auth/:path*',
         destination: '/api/auth/:path*', // Let Next.js handle NextAuth locally
       },
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*', // Use local backend for dev
-      },
       // {
       //   source: '/api/:path*',
-      //   destination: 'https://odamsroyal.onrender.com/api/:path*', // Use production backend 
+      //   destination: 'http://localhost:5000/api/:path*', // Use local backend for dev
       // },
+      {
+        source: '/api/:path*',
+        destination: 'https://odamsroyal.onrender.com/api/:path*', // Use production backend 
+      },
     ];
   },
   images: {
