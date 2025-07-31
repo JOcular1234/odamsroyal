@@ -1,25 +1,3 @@
-// // backend/routes/test.js
-// const express = require('express');
-// const router = express.Router();
-// const { sendAppointmentApproved } = require('../utils/mailer');
-
-// router.get('/test-email', async (req, res) => {
-//   try {
-//     const testAppointment = {
-//       email: 'mfonobongumoh75@gmail.com',
-//       name: 'Test User',
-//       service: 'Test Service',
-//       date: new Date(),
-//     };
-//     await sendAppointmentApproved(testAppointment);
-//     res.json({ message: 'Test email sent' });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// module.exports = router;
-
 // backend/routes/test.js
 const express = require('express');
 const router = express.Router();

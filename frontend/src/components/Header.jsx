@@ -68,6 +68,13 @@ export default function Header() {
             Appointments
           </Link>
           <Link
+            href="/faq"
+            className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            FAQ
+          </Link>
+          <Link
             href="/contact"
             className="text-white font-semibold text-base md:text-lg px-4 py-2 rounded-md bg-accent hover:bg-opacity-90 transition-colors"
             onClick={() => setIsOpen(false)}

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { motion, useInView, Variants } from 'framer-motion';
 import AppointmentForm from '../../components/AppointmentForm';
 
+import Head from 'next/head';
+
 export default function Appointment() {
   const sectionRef = useRef<HTMLElement>(null);
   const isSectionInView = useInView(sectionRef, { once: true, margin: '-100px' });
@@ -24,7 +26,23 @@ export default function Appointment() {
   };
 
   return (
-    <main className="py-20 min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+    <>
+      <Head>
+        <title>Book Real Estate Consultation | Odamz Royal Consultz Nig Ltd</title>
+        <meta name="description" content="Schedule a one-on-one session with our property management, construction, or legal advisory experts. Book your real estate consultation with Odamz Royal Consultz Nig Ltd today." />
+        <meta name="keywords" content="book real estate consultation, property management booking, site construction appointment, legal advisory booking, Nigeria real estate, Odamz Royal" />
+        {/* Open Graph */}
+        <meta property="og:title" content="Book Real Estate Consultation | Odamz Royal Consultz Nig Ltd" />
+        <meta property="og:description" content="Schedule a session with our property management, construction, or legal advisory experts. Book your real estate consultation today." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://odamzroyal.vercel.app/appointment" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Book Real Estate Consultation | Odamz Royal Consultz Nig Ltd" />
+        <meta name="twitter:description" content="Book your real estate consultation with Odamz Royal Consultz Nig Ltd." />
+      </Head>
+      
+      <main className="py-20 min-h-screen bg-gray-50 flex flex-col items-center justify-center">
       <motion.section
         ref={sectionRef}
         variants={sectionVariants}
@@ -70,5 +88,6 @@ export default function Appointment() {
         </motion.div>
       </motion.section>
     </main>
+    </>
   );
 }

@@ -20,6 +20,8 @@ type Errors = {
   [key: string]: string;
 };
 
+import Head from 'next/head';
+
 export default function Contact() {
   const [formData, setFormData] = useState<FormData>({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState<Errors>({ name: '', email: '', message: '' });

@@ -13,7 +13,7 @@ export default function AdminLogin() {
   const router = useRouter();
 
   // API URL with fallback
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamsroyal.onrender.com';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamroyal.onrender.com';
 
   // Redirect if already authenticated
   useEffect(() => {

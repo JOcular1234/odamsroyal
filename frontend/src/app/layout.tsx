@@ -19,13 +19,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <title>Odamz Royal Consultz Nig Ltd | Real Estate Nigeria</title>
+        <link rel="icon" href="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" type="image/jpeg" />
         <meta name="description" content="Professional real estate services in Nigeria, including property management, construction, and legal advisory." />
         <meta name="keywords" content="Odamz Royal, Real Estate Nigeria, Property Management Abuja, Land Sales Nigeria, Legal Advice Property, Construction Services Abuja" />
         <meta property="og:title" content="Odamz Royal Consultz Nig Ltd" />
         <meta property="og:description" content="Trusted real estate company in Nigeria providing property management, legal consulting, and site development." />
-        <meta property="og:url" content="https://yourdomain.com" />
+        <meta property="og:url" content="https://odamzroyal.vercel.app/" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://yourdomain.com/preview.jpg" />
+        <meta property="og:image" content="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Odamz Royal Consultz Nig Ltd" />
         <meta name="twitter:description" content="Top-rated Nigerian real estate agency for legal advice, site construction, and land acquisition." />

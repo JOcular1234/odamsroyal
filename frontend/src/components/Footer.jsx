@@ -60,6 +60,15 @@ export default function Footer() {
               </li>
               <li>
                 <Link
+                  href="/faq"
+                  className="hover:text-accent transition-colors"
+                  aria-label="Frequently Asked Questions"
+                >
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/contact"
                   className="hover:text-accent transition-colors"
                   aria-label="Contact Us"

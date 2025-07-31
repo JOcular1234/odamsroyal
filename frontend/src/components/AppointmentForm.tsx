@@ -13,7 +13,8 @@ type FormData = {
   phone: string;
   service: string;
   date: string;
-  [key: string]: string; // Add index signature
+  time: string;
+  [key: string]: string;
 };
 
 type Errors = {
@@ -22,7 +23,8 @@ type Errors = {
   phone: string;
   service: string;
   date: string;
-  [key: string]: string; // Add index signature
+  time: string;
+  [key: string]: string;
 };
 
 export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void }) {
@@ -33,6 +35,7 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
     phone: '',
     service: '',
     date: '',
+    time: '',
   });
   const [errors, setErrors] = useState<Errors>({
     name: '',
@@ -40,6 +43,7 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
     phone: '',
     service: '',
     date: '',
+    time: '',
   });
   const [status, setStatus] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -63,7 +67,7 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Errors = { name: '', email: '', phone: '', service: '', date: '' };
+    const newErrors: Errors = { name: '', email: '', phone: '', service: '', date: '', time: '' };
     let isValid = true;
 
     if (!formData.name) {
@@ -111,6 +115,11 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
       }
     }
 
+    if (!formData.time) {
+      newErrors.time = 'Time is required';
+      isValid = false;
+    }
+
     setErrors(newErrors);
     return isValid;
   };
@@ -130,10 +139,11 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/appointments`, {
         ...formData,
         date: new Date(formData.date),
+        time: formData.time,
       });
       setStatus(`Thank you for your appointment request! We will get back to you soon. Status: ${res.data.status || 'pending'}`);
-      setFormData({ name: '', email: '', phone: '', service: '', date: '' });
-      setErrors({ name: '', email: '', phone: '', service: '', date: '' });
+      setFormData({ name: '', email: '', phone: '', service: '', date: '', time: '' });
+      setErrors({ name: '', email: '', phone: '', service: '', date: '', time: '' });
       setModalOpen(true);
       if (onSuccess) onSuccess();
       setTimeout(() => {
@@ -156,13 +166,14 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
       /^\+?\d{10,14}$/.test(formData.phone.replace(/\s/g, '')) &&
       formData.service !== '' &&
       formData.date !== '' &&
-      new Date(formData.date) >= today // Fix: Compare with Date object
+      formData.time !== '' &&
+      new Date(formData.date) >= today
     );
   };
 
   const handleReset = () => {
-    setFormData({ name: '', email: '', phone: '', service: '', date: '' });
-    setErrors({ name: '', email: '', phone: '', service: '', date: '' });
+    setFormData({ name: '', email: '', phone: '', service: '', date: '', time: '' });
+    setErrors({ name: '', email: '', phone: '', service: '', date: '', time: '' });
     setStatus('');
     setModalOpen(false);
   };
@@ -253,6 +264,38 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
             )}
           </motion.div>
         ))}
+        {/* Time Picker Field */}
+        <motion.div
+          variants={inputVariants}
+          custom={7}
+        >
+          <label
+            htmlFor="time"
+            className="block text-sm font-medium text-gray-700 mb-1 font-sans"
+          >
+            Appointment Time
+          </label>
+          <input
+            id="time"
+            name="time"
+            type="time"
+            className={`w-full p-3 border ${errors.time ? 'border-red-500' : 'border-gray-300'} rounded-full focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all duration-200 text-sm font-sans`}
+            value={formData.time}
+            onChange={handleChange}
+            required
+            aria-label="Appointment Time"
+            aria-describedby={errors.time ? 'time-error' : undefined}
+          />
+          {errors.time && (
+            <p
+              id="time-error"
+              className="text-red-500 text-xs mt-1 font-sans"
+              aria-live="polite"
+            >
+              {errors.time}
+            </p>
+          )}
+        </motion.div>
         <motion.div
           className="flex justify-end gap-3 mt-4"
           variants={inputVariants}

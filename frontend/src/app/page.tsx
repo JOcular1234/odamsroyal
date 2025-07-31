@@ -20,6 +20,8 @@ type Property = {
   area?: string;
 };
 
+import Head from 'next/head';
+
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [search, setSearch] = useState('');
@@ -64,7 +66,22 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <>
+      <Head>
+        <title>Odamz Royal Consultz Nig Ltd | Premier Real Estate Firm in Nigeria</title>
+        <meta name="description" content="Odamz Royal Consultz Nig Ltd is a leading real estate company in Nigeria, specializing in property management, site construction, and legal advisory. Trusted for quality and client satisfaction." />
+        <meta name="keywords" content="real estate Nigeria, property management Nigeria, site construction Nigeria, legal advisory, real estate firm, property consultants, Odamz Royal, Lagos, Abuja" />
+        {/* Open Graph */}
+        <meta property="og:title" content="Odamz Royal Consultz Nig Ltd | Premier Real Estate Firm in Nigeria" />
+        <meta property="og:description" content="Odamz Royal Consultz Nig Ltd specializes in property management, site construction, and legal advisory in Nigeria. Delivering exceptional real estate solutions." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://odamzroyal.vercel.app" />
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Odamz Royal Consultz Nig Ltd | Premier Real Estate Firm in Nigeria" />
+        <meta name="twitter:description" content="Odamz Royal Consultz Nig Ltd: property management, site construction, legal advisory in Nigeria." />
+      </Head>
+      <main>
       {/* Hero Section */}
       <Hero />
 
@@ -199,5 +216,6 @@ export default function Home() {
         </motion.div>
       </motion.section>
     </main>
+    </>
   );
 }

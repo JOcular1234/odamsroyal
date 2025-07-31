@@ -41,12 +41,12 @@ export default function AdminAppointments() {
     setUpdating(id + status);
     try {
       const token = localStorage.getItem('admin_token');
-    await axios.patch(`/api/appointments/${id}`, { status }, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+      await axios.patch(`/api/admin/appointments/${id}`, { status }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       fetchAppointments();
     } catch (err) {
       alert('Failed to update status');
@@ -74,6 +74,8 @@ export default function AdminAppointments() {
                 <th className="py-3 px-4 text-left">Phone</th>
                 <th className="py-3 px-4 text-left">Service</th>
                 <th className="py-3 px-4 text-left">Date</th>
+                <th className="py-3 px-4 text-left">Time</th>
+                <th className="py-3 px-4 text-left">Booked At</th>
                 <th className="py-3 px-4 text-left">Status</th>
                 <th className="py-3 px-4 text-left">Actions</th>
               </tr>
@@ -86,6 +88,8 @@ export default function AdminAppointments() {
                   <td className="py-2 px-4">{a.phone}</td>
                   <td className="py-2 px-4">{a.service}</td>
                   <td className="py-2 px-4">{new Date(a.date).toLocaleString()}</td>
+                  <td className="py-2 px-4">{a.time}</td>
+                  <td className="py-2 px-4">{a.createdAt ? new Date(a.createdAt).toLocaleString() : '-'}</td>
                   <td className="py-2 px-4 capitalize font-semibold text-sm">
                     <span className={
                       a.status === 'approved' ? 'text-green-600' :

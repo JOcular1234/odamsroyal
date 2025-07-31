@@ -232,18 +232,48 @@ router.patch('/appointments/:id', enhancedVerifyToken, async (req, res) => {
       return res.status(400).json({ message: 'Invalid status. Must be pending, approved, or rejected.' });
     }
 
-      // Mock response - replace with actual database update
-    const appointment = {
-      _id: id,
-      status: status,
-      updatedAt: new Date()
-    };
+    const mongoose = require('mongoose');
+    console.log('Updating appointment:', id, 'with status:', status);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.error('Invalid ObjectId:', id);
+      return res.status(400).json({ message: 'Invalid appointment ID' });
+    }
+    const appointment = await Appointment.findByIdAndUpdate(
+      id,
+      {
+        status: status,
+        updatedAt: new Date(),
+      },
+      { new: true, runValidators: true }
+    );
+    if (!appointment) {
+      console.error('No appointment found for ID:', id);
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+    console.log('Appointment after update:', appointment);
+
+    // Send approval email if status is approved
+    if (appointment.status === 'approved') {
+      try {
+        const { sendAppointmentApproved } = require('../utils/mailer');
+        await sendAppointmentApproved(appointment);
+        console.log('✅ Approval email sent to:', appointment.email);
+      } catch (emailError) {
+        console.error('❌ Error sending approval email:', emailError.message);
+      }
+    }
 
     res.status(200).json(appointment);
   } catch (error) {
-    console.error('Update appointment error:', error.message);
-    res.status(500).json({ message: 'Error updating appointment' });
+    console.error('Update appointment error:', error);
+    res.status(500).json({ message: 'Error updating appointment', error });
   }
+});
+
+// Test logging route
+router.get('/test-log', (req, res) => {
+  console.log('Test log route hit!');
+  res.json({ message: 'Test log route hit!' });
 });
 
 // Logout route

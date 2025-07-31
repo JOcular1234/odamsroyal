@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 const propertyRoutes = require('./routes/properties');
 const inquiryRoutes = require('./routes/inquiries');
 const appointmentRoutes = require('./routes/appointments');
+const faqRoutes = require('./routes/faq');
 const adminRoutes = require('./routes/admin');
 
 dotenv.config();
@@ -50,6 +51,7 @@ connectDB();
 app.use('/api/properties', propertyRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/faq', faqRoutes);
 app.use('/api/admin', adminRoutes.router);
 
 // Global error handler

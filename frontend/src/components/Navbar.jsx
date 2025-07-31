@@ -9,6 +9,9 @@ export default function Navbar() {
       <Link href="/about" className="text-gray-700 font-semibold hover:text-[#f97316] transition-colors">
         About Us
       </Link>
+      <Link href="/faq" className="text-gray-700 font-semibold hover:text-[#f97316] transition-colors">
+        FAQ
+      </Link>
       <Link href="/contact" className="text-gray-700 font-semibold hover:text-[#f97316] transition-colors">
         Contact
       </Link>

@@ -7,6 +7,7 @@ const appointmentSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   service: { type: String, required: true },
   date: { type: Date, required: true },
+  time: { type: String, required: true }, // New time field (e.g., '14:30' or '2:30 PM')
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   createdAt: { type: Date, default: Date.now },
 });
