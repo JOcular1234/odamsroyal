@@ -1,6 +1,6 @@
 // // frontend/src/utils/adminAuth.js
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamsroyal.onrender.com';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://odamsroyal.onrender.com/api';
 
 class SecureAdminAuth {
   constructor() {

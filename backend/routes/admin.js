@@ -29,7 +29,9 @@ const verifyToken = (req, res, next) => {
 };
 
 
-router.post('/login', async (req, res) => {
+const { loginLimiter } = require('../utils/rateLimiter');
+
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {

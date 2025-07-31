@@ -33,7 +33,7 @@ const nextConfig = {
       // },
       {
         source: '/api/:path*',
-        destination: 'https://odamsroyal.onrender.com/api/:path*', // Use production backend 
+        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`, // Use env backend
       },
     ];
   },

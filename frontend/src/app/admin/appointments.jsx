@@ -14,7 +14,7 @@ export default function AdminAppointments() {
   const router = useRouter();
 
   // API URL with fallback
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamsroyal.onrender.com';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'https://odamsroyal.onrender.com/api';
 
   // Check authentication and fetch appointments
   useEffect(() => {
