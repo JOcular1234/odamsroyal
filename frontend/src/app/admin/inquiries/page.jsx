@@ -1,25 +1,46 @@
 // frontend/src/app/admin/inquiries/page.jsx
 "use client";
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { TrashIcon, EnvelopeIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import DOMPurify from 'dompurify';
+import {
+  UserCircleIcon,
+  EnvelopeIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+  MagnifyingGlassIcon,
+  HomeModernIcon,
+  CalendarDaysIcon,
+} from '@heroicons/react/24/outline';
+
+const formatDate = (date) =>
+  date
+    ? new Date(date).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : 'N/A';
 
 export default function AdminInquiries() {
+  const router = useRouter();
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [showRespondModal, setShowRespondModal] = useState(null);
   const [responseText, setResponseText] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState('');
-  const [showDeleteModal, setShowDeleteModal] = useState(null); // For single delete
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false); // For bulk delete
-  const [showMessageModal, setShowMessageModal] = useState(null); // For viewing message
+  const [showDeleteModal, setShowDeleteModal] = useState(null);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(null);
   const [selectedInquiries, setSelectedInquiries] = useState([]);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const inquiriesPerPage = 10;
 
   useEffect(() => {
@@ -31,48 +52,76 @@ export default function AdminInquiries() {
     setError('');
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await axios.get(`/api/inquiries`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      if (!token) {
+        setError('Please log in to access inquiries');
+        router.push('/admin/login');
+        return;
+      }
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       setInquiries(res.data);
     } catch (err) {
-      setError('Failed to fetch inquiries');
+      setError(
+        err.response?.data?.message || err.message || 'Failed to fetch inquiries'
+      );
     }
     setLoading(false);
   }
 
-  const handleDelete = async (id) => {
+  async function handleDelete(id) {
     try {
       const token = localStorage.getItem('admin_token');
-      await axios.delete(`/api/inquiries/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      if (!token) {
+        setError('Please log in to perform this action');
+        router.push('/admin/login');
+        return;
+      }
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       setInquiries(inquiries.filter((inq) => inq._id !== id));
       setShowDeleteModal(null);
       setShowSuccessModal('Inquiry deleted successfully');
       setTimeout(() => setShowSuccessModal(''), 2000);
     } catch (err) {
-      setError('Failed to delete inquiry');
+      setError(
+        err.response?.data?.message || err.message || 'Failed to delete inquiry'
+      );
     }
-  };
+  }
 
-  const handleBulkDelete = async () => {
+  async function handleBulkDelete() {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setError('Please log in to perform this action');
+        router.push('/admin/login');
+        return;
+      }
       await Promise.all(
         selectedInquiries.map((id) =>
-          axios.delete(`/api/inquiries/${id}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          })
+          axios.delete(
+            `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         )
       );
       setInquiries(inquiries.filter((inq) => !selectedInquiries.includes(inq._id)));
@@ -81,40 +130,62 @@ export default function AdminInquiries() {
       setShowSuccessModal('Selected inquiries deleted successfully');
       setTimeout(() => setShowSuccessModal(''), 2000);
     } catch (err) {
-      setError('Failed to delete selected inquiries');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to delete selected inquiries'
+      );
     }
-  };
+  }
 
-  const handleMarkRead = async (id, isRead) => {
+  async function handleMarkRead(id, isRead) {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setError('Please log in to perform this action');
+        router.push('/admin/login');
+        return;
+      }
       await axios.patch(
-        `/api/inquiries/${id}`,
+        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}`,
         { isRead },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
       );
       setInquiries(inquiries.map((inq) => (inq._id === id ? { ...inq, isRead } : inq)));
     } catch (err) {
-      setError('Failed to update inquiry status');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to update inquiry status'
+      );
     }
-  };
+  }
 
-  const handleBulkMarkRead = async (isRead) => {
+  async function handleBulkMarkRead(isRead) {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setError('Please log in to perform this action');
+        router.push('/admin/login');
+        return;
+      }
       await Promise.all(
         selectedInquiries.map((id) =>
-          axios.patch(`/api/inquiries/${id}`, { isRead }, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          })
+          axios.patch(
+            `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}`,
+            { isRead },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
         )
       );
       setInquiries(
@@ -126,19 +197,28 @@ export default function AdminInquiries() {
       setShowSuccessModal(`Selected inquiries marked as ${isRead ? 'read' : 'unread'}`);
       setTimeout(() => setShowSuccessModal(''), 2000);
     } catch (err) {
-      setError('Failed to update selected inquiries');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to update selected inquiries'
+      );
     }
-  };
+  }
 
-  const handleRespond = async (id, email) => {
+  async function handleRespond(id, email) {
     try {
       const token = localStorage.getItem('admin_token');
+      if (!token) {
+        setError('Please log in to perform this action');
+        router.push('/admin/login');
+        return;
+      }
       await axios.post(
-        `/api/inquiries/${id}/respond`,
+        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}/respond`,
         { responseMessage: responseText },
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -151,48 +231,341 @@ export default function AdminInquiries() {
       setShowSuccessModal('Response sent successfully');
       setTimeout(() => setShowSuccessModal(''), 2000);
     } catch (err) {
-      setError('Failed to send response');
+      setError(
+        err.response?.data?.message || err.message || 'Failed to send response'
+      );
     }
-  };
+  }
 
   const filteredInquiries = inquiries.filter((inq) => {
     const matchesSearch =
-      inq.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inq.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inq.message?.toLowerCase().includes(searchQuery.toLowerCase());
-    let matchesDate = true;
-    if (startDate) {
-      matchesDate = matchesDate && new Date(inq.createdAt) >= new Date(startDate + 'T00:00:00');
-    }
-    if (endDate) {
-      matchesDate = matchesDate && new Date(inq.createdAt) <= new Date(endDate + 'T23:59:59');
-    }
-    return matchesSearch && matchesDate;
+      (inq.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (inq.email?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (inq.message?.toLowerCase() || '').includes(search.toLowerCase());
+    const matchesStatus =
+      statusFilter === 'all'
+        ? true
+        : statusFilter === 'responded'
+        ? inq.responded
+        : !inq.responded;
+    return matchesSearch && matchesStatus;
   });
 
   const sortedInquiries = [...filteredInquiries].sort((a, b) => {
-    if (sortBy === 'name') return a.name?.localeCompare(b.name || '');
-    if (sortBy === 'email') return a.email?.localeCompare(b.email || '');
-    return new Date(b.createdAt) - new Date(a.createdAt);
+    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
   });
 
   const indexOfLastInquiry = currentPage * inquiriesPerPage;
   const indexOfFirstInquiry = indexOfLastInquiry - inquiriesPerPage;
-  const currentInquiries = sortedInquiries.slice(indexOfFirstInquiry, indexOfLastInquiry);
+  const currentInquiries = sortedInquiries.slice(
+    indexOfFirstInquiry,
+    indexOfLastInquiry
+  );
 
   return (
     <>
+      <section className="py-14 max-w-5xl mx-auto px-2 sm:px-6 font-sans">
+        <div className="flex items-center gap-3 mb-8">
+          <span className="inline-block w-2 h-8 bg-[#f97316] rounded-full"></span>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#f97316] tracking-tight">
+            Manage Inquiries
+          </h2>
+        </div>
+        {/* Search & Filter */}
+        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+          <div className="relative w-full md:w-72">
+            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5 pointer-events-none" />
+            <input
+              type="text"
+              className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm w-full focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+              placeholder="Search by name, email, or message..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Search inquiries"
+            />
+          </div>
+          <select
+            className="rounded-lg border border-gray-200 px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none w-full md:w-48"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
+          >
+            <option value="all">All Statuses</option>
+            <option value="responded">Responded</option>
+            <option value="unresponded">Unresponded</option>
+          </select>
+        </div>
+        {/* Bulk Actions */}
+        {selectedInquiries.length > 0 && (
+          <div className="flex flex-wrap gap-4 mb-8">
+            <button
+              className="px-6 py-2 bg-[#f97316] text-white rounded-xl font-semibold hover:bg-[#e86a15] transition-all duration-300 font-sans"
+              onClick={() => handleBulkMarkRead(true)}
+              aria-label="Mark selected inquiries as read"
+            >
+              Mark as Read
+            </button>
+            <button
+              className="px-6 py-2 bg-[#f97316] text-white rounded-xl font-semibold hover:bg-[#e86a15] transition-all duration-300 font-sans"
+              onClick={() => handleBulkMarkRead(false)}
+              aria-label="Mark selected inquiries as unread"
+            >
+              Mark as Unread
+            </button>
+            <button
+              className="px-6 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all duration-300 font-sans"
+              onClick={() => setShowBulkDeleteModal(true)}
+              aria-label="Delete selected inquiries"
+            >
+              Delete Selected
+            </button>
+          </div>
+        )}
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <svg
+              className="animate-spin h-12 w-12 text-[#f97316]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-label="Loading"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+          </div>
+        ) : error ? (
+          <div
+            className="flex justify-center py-10"
+            aria-live="polite"
+          >
+            <span className="text-red-500 font-semibold">{error}</span>
+          </div>
+        ) : sortedInquiries.length === 0 ? (
+          <div className="flex justify-center py-12">
+            <span className="text-gray-400 text-lg">No inquiries found.</span>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto rounded-2xl shadow-xl border border-[#f97316]/10 bg-white">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-[#f97316]">
+                  <tr>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tl-2xl">
+                      Select
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+                      Name
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+                      Email
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+                      Message
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+                      Date
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+                      Property
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+                      Status
+                    </th>
+                    <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tr-2xl">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentInquiries.map((inq) => {
+                    const initials = (inq.name || 'NA')
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2);
+                    let statusProps = {
+                      color: 'bg-yellow-100 text-yellow-800',
+                      icon: <ExclamationCircleIcon className="w-4 h-4 mr-1" />,
+                      label: 'Unresponded',
+                    };
+                    if (inq.responded) {
+                      statusProps = {
+                        color: 'bg-green-100 text-green-800',
+                        icon: <CheckCircleIcon className="w-4 h-4 mr-1" />,
+                        label: 'Responded',
+                      };
+                    }
+                    return (
+                      <tr
+                        key={inq._id}
+                        className={`border-b border-gray-100 last:border-none hover:bg-[#f97316]/5 transition ${
+                          inq.isRead ? 'opacity-80' : ''
+                        }`}
+                      >
+                        <td className="py-4 px-6">
+                          <input
+                            type="checkbox"
+                            checked={selectedInquiries.includes(inq._id)}
+                            onChange={(e) =>
+                              setSelectedInquiries(
+                                e.target.checked
+                                  ? [...selectedInquiries, inq._id]
+                                  : selectedInquiries.filter((id) => id !== inq._id)
+                              )
+                            }
+                            aria-label={`Select inquiry from ${inq.name || 'Anonymous'}`}
+                          />
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <span className="w-9 h-9 rounded-full bg-[#f97316]/90 text-white font-bold flex items-center justify-center text-base shadow-md">
+                              {initials}
+                            </span>
+                            <span
+                              className="font-semibold text-gray-900"
+                              dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(inq.name || 'N/A'),
+                              }}
+                            />
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="flex items-center gap-1">
+                            <EnvelopeIcon className="w-4 h-4 text-[#f97316]" />
+                            {inq.email || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <button
+                            className="px-3 py-1 bg-[#f97316] text-white rounded-lg font-semibold hover:bg-[#e86a15] transition-all duration-300 font-sans text-sm"
+                            onClick={() =>
+                              setShowMessageModal({
+                                name: inq.name,
+                                message: inq.message,
+                              })
+                            }
+                            aria-label={`View message from ${inq.name || 'Anonymous'}`}
+                          >
+                            View Message
+                          </button>
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="flex items-center gap-1">
+                            <CalendarDaysIcon className="w-4 h-4 text-[#f97316]" />
+                            {formatDate(inq.createdAt)}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          {inq.cardUrl ? (
+                            <a
+                              href={inq.cardUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-[#f97316] underline hover:text-[#e86a15] font-semibold"
+                            >
+                              <HomeModernIcon className="w-4 h-4" />
+                              View Property
+                            </a>
+                          ) : (
+                            'N/A'
+                          )}
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap text-center">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${statusProps.color} gap-1`}
+                          >
+                            {statusProps.icon}
+                            {statusProps.label}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          <div className="flex gap-2">
+                            <button
+                              className="p-2 text-[#f97316] hover:bg-[#f97316]/10 hover:text-[#e86a15] rounded-lg transition-all duration-200"
+                              title="Respond to inquiry"
+                              onClick={() =>
+                                setShowRespondModal({
+                                  id: inq._id,
+                                  name: inq.name,
+                                  email: inq.email,
+                                  message: inq.message,
+                                })
+                              }
+                              aria-label={`Respond to inquiry from ${inq.name || 'Anonymous'}`}
+                            >
+                              <EnvelopeIcon className="w-5 h-5" />
+                            </button>
+                            <button
+                              className="p-2 text-red-500 hover:bg-red-500/10 hover:text-red-600 rounded-lg transition-all duration-200"
+                              title="Delete inquiry"
+                              onClick={() =>
+                                setShowDeleteModal({
+                                  id: inq._id,
+                                  name: inq.name,
+                                })
+                              }
+                              aria-label={`Delete inquiry from ${inq.name || 'Anonymous'}`}
+                            >
+                              <TrashIcon className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {/* Pagination */}
+            <div className="flex justify-center gap-4 mt-8">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-6 py-2 bg-[#f97316] text-white rounded-xl font-semibold disabled:opacity-50 hover:bg-[#e86a15] transition-all duration-300 font-sans"
+                aria-label="Previous page"
+              >
+                Previous
+              </button>
+              <span className="flex items-center text-gray-400 font-sans">
+                Page {currentPage} of {Math.ceil(sortedInquiries.length / inquiriesPerPage)}
+              </span>
+              <button
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                disabled={indexOfLastInquiry >= sortedInquiries.length}
+                className="px-6 py-2 bg-[#f97316] text-white rounded-xl font-semibold disabled:opacity-50 hover:bg-[#e86a15] transition-all duration-300 font-sans"
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </div>
+          </>
+        )}
+      </section>
+
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-black bg-opacity-40 absolute inset-0" aria-hidden="true"></div>
-          <div className="relative bg-card rounded-xl shadow-card px-8 py-10 max-w-sm w-full flex flex-col items-center transform transition-all duration-300 scale-100">
+          <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center">
             <CheckCircleIcon className="w-16 h-16 text-green-500 mb-4" aria-hidden="true" />
-            <h3 className="text-2xl font-bold text-primary mb-2 font-sans">Success!</h3>
-            <p className="text-neutral text-center mb-6 font-sans">{showSuccessModal}</p>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Success!</h3>
+            <p className="text-gray-700 text-center mb-6 font-sans">{showSuccessModal}</p>
             <button
               onClick={() => setShowSuccessModal('')}
-              className="px-6 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-2 transition-all duration-300 font-sans"
+              className="px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e86a15] font-sans"
               aria-label="Close success modal"
             >
               Close
@@ -205,37 +578,44 @@ export default function AdminInquiries() {
       {showRespondModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-black bg-opacity-40 absolute inset-0" aria-hidden="true"></div>
-          <div className="relative bg-card rounded-xl shadow-card px-8 py-8 max-w-lg w-full">
+          <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
             <button
-              className="absolute top-4 right-4 text-neutral hover:text-primary text-xl focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 font-sans"
+              className="absolute top-4 right-4 text-gray-400 hover:text-[#f97316] text-xl font-sans"
               onClick={() => setShowRespondModal(null)}
               aria-label="Close Respond Modal"
             >
               ×
             </button>
-            <h3 className="text-2xl font-bold text-primary mb-4 font-sans">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
               Respond to {showRespondModal.name || 'Inquiry'}
             </h3>
-            <p className="text-neutral mb-4 font-sans whitespace-normal">
-              <strong>Inquiry:</strong> {showRespondModal.message || 'No message'}
+            <p
+              className="text-gray-700 mb-4 font-sans whitespace-normal"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(showRespondModal.message || 'No message'),
+              }}
+            >
             </p>
             <textarea
-              className="w-full px-4 py-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button transition-all duration-300 font-sans resize-none h-32"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#f97316] transition-all duration-300 font-sans resize-none h-32"
               placeholder="Write your response..."
               value={responseText}
               onChange={(e) => setResponseText(e.target.value)}
+              aria-label="Response text"
             ></textarea>
             <div className="flex justify-end gap-3 mt-6">
               <button
-                className="px-6 py-2 bg-neutral text-white rounded-xl font-semibold hover:bg-accent-dark transition-all duration-300 font-sans"
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 font-sans"
                 onClick={() => setShowRespondModal(null)}
+                aria-label="Cancel response"
               >
                 Cancel
               </button>
               <button
-                className="px-6 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-2 transition-all duration-300 font-sans disabled:opacity-50"
+                className="px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e86a15] font-sans disabled:opacity-50"
                 onClick={() => handleRespond(showRespondModal.id, showRespondModal.email)}
                 disabled={!responseText}
+                aria-label="Send response"
               >
                 Send
               </button>
@@ -248,22 +628,23 @@ export default function AdminInquiries() {
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-black bg-opacity-40 absolute inset-0" aria-hidden="true"></div>
-          <div className="relative bg-card rounded-xl shadow-card px-8 py-8 max-w-sm w-full flex flex-col items-center">
-            <TrashIcon className="w-16 h-16 text-error mb-4" aria-hidden="true" />
-            <h3 className="text-2xl font-bold text-primary mb-2 font-sans">Delete Inquiry</h3>
-            <p className="text-neutral text-center mb-6 font-sans">
-              Are you sure you want to delete this inquiry from {showDeleteModal.name || 'Anonymous'}?
+          <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center">
+            <TrashIcon className="w-16 h-16 text-red-500 mb-4" aria-hidden="true" />
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Delete Inquiry</h3>
+            <p className="text-gray-700 text-center mb-6 font-sans">
+              Are you sure you want to delete this inquiry from{' '}
+              {DOMPurify.sanitize(showDeleteModal.name || 'Anonymous')}?
             </p>
             <div className="flex justify-end gap-3">
               <button
-                className="px-6 py-2 bg-neutral text-white rounded-xl font-semibold hover:bg-accent-dark transition-all duration-300 font-sans"
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 font-sans"
                 onClick={() => setShowDeleteModal(null)}
                 aria-label="Cancel deletion"
               >
                 Cancel
               </button>
               <button
-                className="px-6 py-2 bg-error text-white rounded-xl bg-red-500 hover:bg-red-400 font-semibold hover:bg-error/80 transition-all duration-300 font-sans"
+                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 font-sans"
                 onClick={() => handleDelete(showDeleteModal.id)}
                 aria-label="Confirm deletion"
               >
@@ -278,22 +659,24 @@ export default function AdminInquiries() {
       {showBulkDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-black bg-opacity-40 absolute inset-0" aria-hidden="true"></div>
-          <div className="relative bg-card rounded-xl shadow-card px-8 py-8 max-w-sm w-full flex flex-col items-center">
-            <TrashIcon className="w-16 h-16 text-error mb-4" aria-hidden="true" />
-            <h3 className="text-2xl font-bold text-primary mb-2 font-sans">Delete Selected Inquiries</h3>
-            <p className="text-neutral text-center mb-6 font-sans">
+          <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-sm w-full flex flex-col items-center">
+            <TrashIcon className="w-16 h-16 text-red-500 mb-4" aria-hidden="true" />
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+              Delete Selected Inquiries
+            </h3>
+            <p className="text-gray-700 text-center mb-6 font-sans">
               Are you sure you want to delete {selectedInquiries.length} selected inquiries?
             </p>
             <div className="flex justify-end gap-3">
               <button
-                className="px-6 py-2 bg-neutral text-white rounded-xl font-semibold hover:bg-accent-dark transition-all duration-300 font-sans"
+                className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 font-sans"
                 onClick={() => setShowBulkDeleteModal(false)}
                 aria-label="Cancel bulk deletion"
               >
                 Cancel
               </button>
               <button
-                className="px-6 py-2 bg-error text-white rounded-xl bg-red-500 hover:bg-red-400 font-semibold hover:bg-error/80 transition-all duration-300 font-sans"
+                className="px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 font-sans"
                 onClick={handleBulkDelete}
                 aria-label="Confirm bulk deletion"
               >
@@ -308,23 +691,26 @@ export default function AdminInquiries() {
       {showMessageModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-black bg-opacity-40 absolute inset-0" aria-hidden="true"></div>
-          <div className="relative bg-card rounded-xl shadow-card px-8 py-8 max-w-lg w-full">
+          <div className="relative bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
             <button
-              className="absolute top-4 right-4 text-neutral hover:text-primary text-xl focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 font-sans"
+              className="absolute top-4 right-4 text-gray-400 hover:text-[#f97316] text-xl font-sans"
               onClick={() => setShowMessageModal(null)}
               aria-label="Close Message Modal"
             >
               ×
             </button>
-            <h3 className="text-2xl font-bold text-primary mb-4 font-sans">
-              Inquiry Message from {showMessageModal.name || 'Anonymous'}
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">
+              Inquiry Message from {DOMPurify.sanitize(showMessageModal.name || 'Anonymous')}
             </h3>
-            <p className="text-neutral font-sans whitespace-normal max-h-96 overflow-y-auto">
-              {showMessageModal.message || 'No message'}
-            </p>
+            <p
+              className="text-gray-700 font-sans whitespace-normal max-h-96 overflow-y-auto"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(showMessageModal.message || 'No message'),
+              }}
+            />
             <div className="flex justify-end mt-6">
               <button
-                className="px-6 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-2 transition-all duration-300 font-sans"
+                className="px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e86a15] font-sans"
                 onClick={() => setShowMessageModal(null)}
                 aria-label="Close message modal"
               >
@@ -334,314 +720,6 @@ export default function AdminInquiries() {
           </div>
         </div>
       )}
-
-      <section className="min-h-screen bg-background py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold text-primary text-center mb-10 tracking-tight font-sans">
-            Manage Inquiries
-          </h2>
-
-          {/* Search and Sort */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8 bg-card rounded-xl shadow-card p-6">
-            <input
-              type="text"
-              placeholder="Search by name, email, or message..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-4 py-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button transition-all duration-300 bg-background font-sans"
-              aria-label="Search inquiries"
-            />
-            <input
-              type="date"
-              value={startDate}
-              onChange={e => setStartDate(e.target.value)}
-              className="px-4 py-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button transition-all duration-300 bg-background font-sans w-full sm:w-48"
-              aria-label="Start date"
-            />
-            <input
-              type="date"
-              value={endDate}
-              onChange={e => setEndDate(e.target.value)}
-              className="px-4 py-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button transition-all duration-300 bg-background font-sans w-full sm:w-48"
-              aria-label="End date"
-            />
-            <select
-              className="px-4 py-3 border border-border rounded-xl text-sm text-neutral focus:outline-none focus:ring-2 focus:ring-button transition-all duration-300 bg-background font-sans w-full sm:w-48"
-              onChange={(e) => setSortBy(e.target.value)}
-              aria-label="Sort inquiries"
-            >
-              <option value="name">Sort by Name</option>
-              <option value="email">Sort by Email</option>
-              <option value="createdAt">Sort by Date</option>
-            </select>
-          </div>
-
-          {/* Bulk Actions */}
-          {selectedInquiries.length > 0 && (
-            <div className="flex flex-wrap gap-4 mb-8">
-              <button
-                className="px-6 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent transition-all duration-300 font-sans"
-                onClick={() => handleBulkMarkRead(true)}
-                aria-label="Mark selected inquiries as read"
-              >
-                Mark as Read
-              </button>
-              <button
-                className="px-6 py-2 bg-button text-white rounded-xl font-semibold hover:bg-accent transition-all duration-300 font-sans"
-                onClick={() => handleBulkMarkRead(false)}
-                aria-label="Mark selected inquiries as unread"
-              >
-                Mark as Unread
-              </button>
-              <button
-                className="px-6 py-2 bg-error text-white rounded-xl bg-red-500 hover:bg-red-400 font-semibold hover:bg-error/80 transition-all duration-300 font-sans"
-                onClick={() => setShowBulkDeleteModal(true)}
-                aria-label="Delete selected inquiries"
-              >
-                Delete Selected
-              </button>
-            </div>
-          )}
-
-          {loading ? (
-            <div className="flex justify-center items-center py-16">
-              <svg
-                className="animate-spin h-12 w-12 text-button"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-label="Loading"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                ></path>
-              </svg>
-            </div>
-          ) : error ? (
-            <div
-              className="bg-error/10 border-l-4 border-error text-error p-6 rounded-xl text-center font-sans text-lg"
-              aria-live="polite"
-            >
-              {error}
-            </div>
-          ) : inquiries.length === 0 ? (
-            <p className="text-center text-neutral text-lg font-medium font-sans py-16">
-              No inquiries found.
-            </p>
-          ) : (
-            <>
-              <div className="bg-card rounded-xl shadow-card overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="min-w-full">
-                    <thead>
-                      <tr className="bg-primary text-white">
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-12">
-                          <input
-                            type="checkbox"
-                            checked={selectedInquiries.length === currentInquiries.length}
-                            onChange={(e) =>
-                              setSelectedInquiries(
-                                e.target.checked ? currentInquiries.map((inq) => inq._id) : []
-                              )
-                            }
-                            aria-label="Select all inquiries"
-                          />
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-32">
-                          Name
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-48">
-                          Email
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-32">
-                          Message
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-40">
-                          Date
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-40">
-                          Property
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-28">
-                          Status
-                        </th>
-                        <th className="py-4 px-6 text-left text-sm font-semibold tracking-wide font-sans w-28">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {currentInquiries.map((inq) => (
-                        <tr
-                          key={inq._id}
-                          className={`border-b border-border last:border-none hover:bg-background transition-all duration-200 ${
-                            inq.isRead ? 'opacity-80' : ''
-                          }`}
-                        >
-                          <td className="py-4 px-6">
-                            <input
-                              type="checkbox"
-                              checked={selectedInquiries.includes(inq._id)}
-                              onChange={(e) =>
-                                setSelectedInquiries(
-                                  e.target.checked
-                                    ? [...selectedInquiries, inq._id]
-                                    : selectedInquiries.filter((id) => id !== inq._id)
-                                )
-                              }
-                              aria-label={`Select inquiry from ${inq.name || 'Anonymous'}`}
-                            />
-                          </td>
-                          <td className="py-4 px-6 font-semibold text-primary font-sans">
-                            {inq.name || 'N/A'}
-                          </td>
-                          <td className="py-4 px-6 text-neutral font-sans">
-                            {inq.email || 'N/A'}
-                          </td>
-                          <td className="py-4 px-6 text-neutral font-sans">
-                            <button
-                              className="px-3 py-1 bg-button text-white rounded-lg font-semibold hover:bg-accent transition-all duration-300 font-sans text-sm"
-                              onClick={() =>
-                                setShowMessageModal({
-                                  name: inq.name,
-                                  message: inq.message,
-                                })
-                              }
-                              aria-label={`View message from ${inq.name || 'Anonymous'}`}
-                            >
-                              View Message
-                            </button>
-                          </td>
-                          <td className="py-4 px-6 text-neutral font-sans">
-                            {inq.createdAt
-                              ? new Date(inq.createdAt).toLocaleString('en-US', {
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })
-                              : 'N/A'}
-                          </td>
-                          <td className="py-4 px-6 text-neutral font-sans">
-                            {inq.cardUrl ? (
-                              <a href={inq.cardUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-accent font-semibold">
-                                View Property
-                              </a>
-                            ) : 'N/A'}
-                          </td>
-                          <td className="py-4 px-6 text-center">
-  {inq.responded ? (
-    <span
-      title="Responded"
-      style={{
-        display: 'inline-block',
-        background: 'red',
-        color: 'white',
-        borderRadius: '50%',
-        width: '1.2em',
-        height: '1.2em',
-        lineHeight: '1.2em',
-        fontWeight: 'bold',
-        fontSize: '1em',
-        boxShadow: '0 0 8px 2px #f87171',
-        verticalAlign: 'middle',
-      }}
-    >
-      ✓
-    </span>
-  ) : (
-    <span
-      title="Not responded"
-      style={{
-        display: 'inline-block',
-        border: '2px solid #bbb',
-        borderRadius: '50%',
-        width: '1.2em',
-        height: '1.2em',
-        lineHeight: '1.2em',
-        fontWeight: 'bold',
-        fontSize: '1em',
-        color: '#bbb',
-        verticalAlign: 'middle',
-      }}
-    >
-      &nbsp;
-    </span>
-  )}
-</td>
-                          <td className="py-4 px-6 flex gap-2">
-                            <button
-                              className="p-2 text-button hover:bg-button hover:text-white rounded-lg transition-all duration-200"
-                              title="Respond to inquiry"
-                              onClick={() =>
-                                setShowRespondModal({
-                                  id: inq._id,
-                                  name: inq.name,
-                                  email: inq.email,
-                                  message: inq.message,
-                                })
-                              }
-                            >
-                              <EnvelopeIcon className="w-5 h-5" />
-                            </button>
-                            <button
-                              className="p-2 text-error hover:bg-error  hover:text-red-600 hover:border-red-600 rounded-lg transition-all duration-200"
-                              title="Delete inquiry"
-                              onClick={() =>
-                                setShowDeleteModal({
-                                  id: inq._id,
-                                  name: inq.name,
-                                })
-                              }
-                            >
-                              <TrashIcon className="w-5 h-5" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Pagination */}
-              <div className="flex justify-center gap-4 mt-8">
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-6 py-2 bg-button text-white rounded-xl font-semibold disabled:opacity-50 hover:bg-accent transition-all duration-300 font-sans"
-                  aria-label="Previous page"
-                >
-                  Previous
-                </button>
-                <span className="flex items-center text-neutral font-sans">
-                  Page {currentPage} of {Math.ceil(sortedInquiries.length / inquiriesPerPage)}
-                </span>
-                <button
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
-                  disabled={indexOfLastInquiry >= sortedInquiries.length}
-                  className="px-6 py-2 bg-button text-white rounded-xl font-semibold disabled:opacity-50 hover:bg-accent transition-all duration-300 font-sans"
-                  aria-label="Next page"
-                >
-                  Next
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
     </>
   );
 }
-

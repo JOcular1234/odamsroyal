@@ -229,7 +229,7 @@ export default function AdminAppointments() {
                         {appointment.service}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(appointment.date).toLocaleString()}
+                        {new Date(appointment.date).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <span

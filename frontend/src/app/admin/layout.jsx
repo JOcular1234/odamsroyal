@@ -1,3 +1,4 @@
+// frontend/src/app/admin/layout.jsx
 "use client";
 import '../globals.css';
 import { SessionProvider } from 'next-auth/react';

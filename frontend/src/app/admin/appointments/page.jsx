@@ -3,6 +3,17 @@
 // moved from appointments.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import {
+  UserCircleIcon,
+  EnvelopeIcon,
+  PhoneIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ExclamationCircleIcon,
+  MagnifyingGlassIcon
+} from './AdminAppointmentsIcons';
 
 export default function AdminAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -10,6 +21,8 @@ export default function AdminAppointments() {
   const [error, setError] = useState('');
   const [updating, setUpdating] = useState('');
   const [modal, setModal] = useState({ open: false, action: '', id: null });
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     fetchAppointments();
@@ -55,66 +68,139 @@ export default function AdminAppointments() {
     setModal({ open: false, action: '', id: null });
   }
 
+  // Filter and search logic
+  const filteredAppointments = appointments.filter(a => {
+    const matchesSearch =
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
+      a.email.toLowerCase().includes(search.toLowerCase()) ||
+      a.phone.toLowerCase().includes(search.toLowerCase()) ||
+      a.service.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' ? true : a.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
-    <section className="py-16 max-w-4xl mx-auto px-4">
-      <h2 className="text-3xl font-bold text-center text-primary mb-8">Manage Appointments</h2>
+    <section className="py-14 max-w-5xl mx-auto px-2 sm:px-6 font-sans">
+      <div className="flex items-center gap-3 mb-8">
+        <span className="inline-block w-2 h-8 bg-[#f97316] rounded-full"></span>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#f97316] tracking-tight">Manage Appointments</h2>
+      </div>
+      {/* Search & Filter */}
+      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+        <div className="relative w-full md:w-72">
+          <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5 pointer-events-none" />
+          <input
+            type="text"
+            className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm w-full focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+            placeholder="Search by name, email, phone, service..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <select
+          className="rounded-lg border border-gray-200 px-4 py-2 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none w-full md:w-48"
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+        >
+          <option value="all">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
       {loading ? (
-        <p className="text-center text-neutral">Loading...</p>
+        <div className="flex justify-center py-16"><span className="text-gray-400 text-lg">Loading...</span></div>
       ) : error ? (
-        <p className="text-center text-red-500">{error}</p>
-      ) : appointments.length === 0 ? (
-        <p className="text-center text-neutral">No appointments found.</p>
+        <div className="flex justify-center py-10"><span className="text-red-500 font-semibold">{error}</span></div>
+      ) : filteredAppointments.length === 0 ? (
+        <div className="flex justify-center py-12"><span className="text-gray-400 text-lg">No appointments found.</span></div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-xl shadow-lg">
-            <thead>
-              <tr className="bg-primary text-white">
-                <th className="py-3 px-4 text-left">Name</th>
-                <th className="py-3 px-4 text-left">Email</th>
-                <th className="py-3 px-4 text-left">Phone</th>
-                <th className="py-3 px-4 text-left">Service</th>
-                <th className="py-3 px-4 text-left">Date</th>
-                <th className="py-3 px-4 text-left">Time</th>
-                <th className="py-3 px-4 text-left">Booked At</th>
-                <th className="py-3 px-4 text-left">Status</th>
-                <th className="py-3 px-4 text-left">Actions</th>
+        <div className="overflow-x-auto rounded-2xl shadow-xl border border-[#f97316]/10 bg-white">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead className="bg-[#f97316]">
+              <tr>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tl-2xl">Name</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Email</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Phone</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Service</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Appoint. Date</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Time</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Booked At</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Status</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tr-2xl">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {appointments.map((a) => (
-                <tr key={a._id} className="border-b last:border-none">
-                  <td className="py-2 px-4">{a.name}</td>
-                  <td className="py-2 px-4">{a.email}</td>
-                  <td className="py-2 px-4">{a.phone}</td>
-                  <td className="py-2 px-4">{a.service}</td>
-                  <td className="py-2 px-4">{new Date(a.date).toLocaleString()}</td>
-                  <td className="py-2 px-4">{a.time}</td>
-                  <td className="py-2 px-4">{a.createdAt ? new Date(a.createdAt).toLocaleString() : '-'}</td>
-                  <td className="py-2 px-4 capitalize font-semibold text-sm">
-                    <span className={
-                      a.status === 'approved' ? 'text-green-600' :
-                      a.status === 'rejected' ? 'text-red-600' :
-                      'text-yellow-600'
-                    }>{a.status}</span>
-                  </td>
-                  <td className="py-2 px-4 flex gap-2">
-                    <button
-                      className="px-3 py-1 rounded bg-green-500 text-white text-xs font-bold hover:bg-green-600 disabled:opacity-50"
-                      disabled={a.status === 'approved' || updating}
-                      onClick={() => setModal({ open: true, action: 'approved', id: a._id })}
-                    >
-                      {updating === a._id + 'approved' ? '...' : 'Approve'}
-                    </button>
-                    <button
-                      className="px-3 py-1 rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50"
-                      disabled={a.status === 'rejected' || updating}
-                      onClick={() => setModal({ open: true, action: 'rejected', id: a._id })}
-                    >
-                      {updating === a._id + 'rejected' ? '...' : 'Reject'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {filteredAppointments.map((a) => {
+                // Avatar initials
+                const initials = a.name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2);
+                // Status badge
+                let statusProps = {
+                  color: 'bg-yellow-100 text-yellow-800',
+                  icon: <ExclamationCircleIcon className="w-4 h-4 mr-1" />,
+                  label: 'Pending'
+                };
+                if (a.status === 'approved') {
+                  statusProps = {
+                    color: 'bg-green-100 text-green-800',
+                    icon: <CheckCircleIcon className="w-4 h-4 mr-1" />,
+                    label: 'Approved'
+                  };
+                } else if (a.status === 'rejected') {
+                  statusProps = {
+                    color: 'bg-red-100 text-red-800',
+                    icon: <XCircleIcon className="w-4 h-4 mr-1" />,
+                    label: 'Rejected'
+                  };
+                }
+                return (
+                  <tr key={a._id} className="border-b last:border-none hover:bg-[#f97316]/5 transition">
+                    {/* Avatar + Name */}
+                    <td className="py-2 px-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <span className="w-9 h-9 rounded-full bg-[#f97316]/90 text-white font-bold flex items-center justify-center text-base shadow-md">
+                          {initials}
+                        </span>
+                        <span className="font-semibold text-gray-900">{a.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><EnvelopeIcon className="w-4 h-4 text-[#f97316]" />{a.email}</div></td>
+                    <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><PhoneIcon className="w-4 h-4 text-[#f97316]" />{a.phone}</div></td>
+                    <td className="py-2 px-4 whitespace-nowrap">{a.service}</td>
+                    <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><CalendarDaysIcon className="w-4 h-4 text-[#f97316]" />{new Date(a.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</div></td>
+                    <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><ClockIcon className="w-4 h-4 text-[#f97316]" />{a.time}</div></td>
+                    <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><CalendarDaysIcon className="w-4 h-4 text-gray-400" />{a.createdAt ? new Date(a.createdAt).toLocaleString() : '-'}</div></td>
+                    <td className="py-2 px-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${statusProps.color} gap-1`}>
+                        {statusProps.icon}{statusProps.label}
+                      </span>
+                    </td>
+                    <td className="py-2 px-4 whitespace-nowrap">
+                      <div className="flex gap-2">
+                        <button
+                          className="px-3 py-1 rounded bg-green-500 text-white text-xs font-bold hover:bg-green-600 disabled:opacity-50 transition"
+                          disabled={a.status === 'approved' || updating}
+                          onClick={() => setModal({ open: true, action: 'approved', id: a._id })}
+                        >
+                          {updating === a._id + 'approved' ? '...' : 'Approve'}
+                        </button>
+                        <button
+                          className="px-3 py-1 rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600 disabled:opacity-50 transition"
+                          disabled={a.status === 'rejected' || updating}
+                          onClick={() => setModal({ open: true, action: 'rejected', id: a._id })}
+                        >
+                          {updating === a._id + 'rejected' ? '...' : 'Reject'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

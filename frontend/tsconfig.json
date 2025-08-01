@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/services/page.jsx", "src/components/AppointmentForm.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/services/page.jsx", "src/components/AppointmentForm.tsx", "src/app/admin/appointments.jsx", "src/app/admin/layout.jsx"],
   "exclude": ["node_modules"]
 }
