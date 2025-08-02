@@ -28,7 +28,9 @@ export default function PropertyDetailPage() {
 
   return (
     <div className="py-8">
-      <PropertyCard property={property} />
+      {/* Pass showActions=true to show inquiry/share icons */}
+      <PropertyCard property={property} showActions={true} />
+      {/* ...display other full details here... */}
     </div>
   );
 }

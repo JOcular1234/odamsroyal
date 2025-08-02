@@ -36,6 +36,7 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
     service: '',
     date: '',
     time: '',
+    note: '',
   });
   const [errors, setErrors] = useState<Errors>({
     name: '',
@@ -44,6 +45,7 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
     service: '',
     date: '',
     time: '',
+    note: '',
   });
   const [status, setStatus] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -124,11 +126,12 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
     return isValid;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors({ ...errors, [name]: '' });
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,10 +143,11 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
         ...formData,
         date: new Date(formData.date),
         time: formData.time,
+        note: formData.note,
       });
       setStatus(`Thank you for your appointment request! We will get back to you soon. Status: ${res.data.status || 'pending'}`);
-      setFormData({ name: '', email: '', phone: '', service: '', date: '', time: '' });
-      setErrors({ name: '', email: '', phone: '', service: '', date: '', time: '' });
+      setFormData({ name: '', email: '', phone: '', service: '', date: '', time: '', note: '' });
+      setErrors({ name: '', email: '', phone: '', service: '', date: '', time: '', note: '' });
       setModalOpen(true);
       if (onSuccess) onSuccess();
       setTimeout(() => {
@@ -172,8 +176,8 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
   };
 
   const handleReset = () => {
-    setFormData({ name: '', email: '', phone: '', service: '', date: '', time: '' });
-    setErrors({ name: '', email: '', phone: '', service: '', date: '', time: '' });
+    setFormData({ name: '', email: '', phone: '', service: '', date: '', time: '', note: '' });
+    setErrors({ name: '', email: '', phone: '', service: '', date: '', time: '', note: '' });
     setStatus('');
     setModalOpen(false);
   };
@@ -244,7 +248,7 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
                 id={field.id}
                 name={field.id}
                 type={field.type}
-                placeholder={field.placeholder}
+                {...(field.type !== 'date' ? { placeholder: field.placeholder } : {})}
                 className={`w-full p-3 border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'} rounded-full focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all duration-200 text-sm font-sans`}
                 value={formData[field.id]}
                 onChange={handleChange}
@@ -296,10 +300,41 @@ export default function AppointmentForm({ onSuccess }: { onSuccess?: () => void 
             </p>
           )}
         </motion.div>
+        {/* Note Field */}
+        <motion.div
+          variants={inputVariants}
+          custom={8}
+        >
+          <label
+            htmlFor="note"
+            className="block text-sm font-medium text-gray-700 mb-1 font-sans"
+          >
+            Note (optional)
+          </label>
+          <textarea
+            id="note"
+            name="note"
+            className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] transition-all duration-200 text-sm font-sans resize-none min-h-[80px]"
+            value={formData.note}
+            onChange={handleChange}
+            aria-label="Note"
+            aria-describedby={errors.note ? 'note-error' : undefined}
+            placeholder="Add any notes for your appointment..."
+          />
+          {errors.note && (
+            <p
+              id="note-error"
+              className="text-red-500 text-xs mt-1 font-sans"
+              aria-live="polite"
+            >
+              {errors.note}
+            </p>
+          )}
+        </motion.div>
         <motion.div
           className="flex justify-end gap-3 mt-4"
           variants={inputVariants}
-          custom={8}
+          custom={9}
         >
           <button
             type="button"

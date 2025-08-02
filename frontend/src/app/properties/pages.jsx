@@ -86,12 +86,7 @@ export default function Properties() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProperties.length > 0 ? (
             filteredProperties.map((property) => (
-              <div
-                key={property._id}
-                className="transform hover:-translate-y-2 transition-transform duration-300"
-              >
-                <PropertyCard property={property} />
-              </div>
+              <PropertyCard key={property._id || property.id} property={property} />
             ))
           ) : (
             <p className="text-center text-gray-600 col-span-full text-lg">

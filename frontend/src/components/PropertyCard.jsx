@@ -1,13 +1,25 @@
 // // frontend/src/components/PropertyCard.jsx
 "use client";
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import axios from 'axios';
 import { FiShare2 } from 'react-icons/fi';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 
-export default function PropertyCard({ property }) {
+import Link from 'next/link';
+
+export default function PropertyCard({ property, showActions = false }) {
+  // Helper to add Cloudinary optimization params
+  function optimizeCloudinaryUrl(url) {
+    if (!url) return url;
+    if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+      return url.replace('/upload/', '/upload/f_auto,q_auto/');
+    }
+    return url;
+  }
+
   const images = Array.isArray(property.images) && property.images.length > 0
-    ? property.images.slice(0, 5)
+    ? property.images.slice(0, 5).map(optimizeCloudinaryUrl)
     : ['https://via.placeholder.com/400x300?text=No+Image'];
 
   const [mainIdx, setMainIdx] = useState(0);
@@ -111,21 +123,34 @@ export default function PropertyCard({ property }) {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <img
+          <Image
             src={images[mainIdx]}
             alt={property.title}
+            width={400}
+            height={300}
             className="rounded-xl object-cover w-full h-60 mb-3 transition-all duration-300"
+            style={{ width: '100%', height: '240px', objectFit: 'cover' }}
+            placeholder="blur"
+            blurDataURL="https://via.placeholder.com/400x300?text=Loading..."
+            unoptimized={false}
+            priority={showActions} // prioritize on details page
           />
           <div className="flex gap-1.5 overflow-x-auto">
             {images.map((img, idx) => (
-              <img
+              <Image
                 key={idx}
                 src={img}
                 alt={`Thumbnail ${idx + 1}`}
+                width={64}
+                height={40}
                 className={`rounded-md cursor-pointer border-2 ${
                   mainIdx === idx ? 'border-accent ring-1 ring-accent' : 'border-border'
                 } object-cover w-16 h-10 transition-all duration-200 hover:opacity-90`}
+                style={{ width: '64px', height: '40px', objectFit: 'cover' }}
                 onClick={() => setMainIdx(idx)}
+                placeholder="blur"
+                blurDataURL="https://via.placeholder.com/64x40?text=..."
+                unoptimized={false}
               />
             ))}
           </div>
@@ -171,25 +196,38 @@ export default function PropertyCard({ property }) {
 
         {/* Actions Row */}
         <div className="flex items-center justify-between mt-4">
-          <button
-            className="bg-button text-white px-4 py-2 rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 transition-all duration-300 font-sans text-sm"
-            onClick={() => setModalOpen(true)}
-            aria-label="Send Inquiry"
-          >
-            Send Inquiry
-          </button>
-          <button
-            className="relative text-neutral hover:text-accent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1"
-            onClick={handleShare}
-            aria-label="Share Property"
-          >
-            <FiShare2 className="h-5 w-5" />
-            {copied && (
-              <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-primary text-white text-xs rounded-md px-2 py-1 shadow-sm font-sans">
-                Link Copied!
-              </span>
-            )}
-          </button>
+          {showActions ? (
+            <>
+              <button
+                className="bg-button text-white px-4 py-2 rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 transition-all duration-300 font-sans text-sm"
+                onClick={() => setModalOpen(true)}
+                aria-label="Send Inquiry"
+              >
+                Send Inquiry
+              </button>
+              <button
+                className="relative text-neutral hover:text-accent transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1"
+                onClick={handleShare}
+                aria-label="Share Property"
+              >
+                <FiShare2 className="h-5 w-5" />
+                {copied && (
+                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-primary text-white text-xs rounded-md px-2 py-1 shadow-sm font-sans">
+                    Link Copied!
+                  </span>
+                )}
+              </button>
+            </>
+          ) : (
+            <Link href={`/properties/${property._id}`}>
+              <button
+                className="bg-button text-white px-4 py-3 rounded-xl font-semibold hover:bg-accent focus:outline-none focus:ring-2 focus:ring-button focus:ring-offset-1 transition-all duration-300 font-sans text-base w-full"
+                aria-label="View Details"
+              >
+                View Details
+              </button>
+            </Link>
+          )}
         </div>
       </div>
 
