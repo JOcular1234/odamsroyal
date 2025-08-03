@@ -37,7 +37,7 @@ export default function StaffManagement() {
   }, [showDeleteModal]);
 
   async function fetchStaff() {
-    setLoading(true);
+    setStaffLoading(true);
     setError('');
     try {
       const res = await adminAuth.makeAuthenticatedRequest('/admin/list', { method: 'GET' });
@@ -52,7 +52,7 @@ export default function StaffManagement() {
       console.error('Fetch staff error (catch):', err);
       setError(err.message || 'Failed to fetch staff');
     }
-    setLoading(false);
+    setStaffLoading(false);
   }
 
   async function handleAddStaff(e) {
