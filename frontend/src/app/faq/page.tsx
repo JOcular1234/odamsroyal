@@ -15,7 +15,7 @@ export default function FAQPage() {
 
   useEffect(() => {
     axios
-      .get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/faq`)
+      .get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/faq/public`)
       .then((res) => setFaqs(res.data))
       .catch((_error) => setFaqs([])); // Use _error to suppress unused variable warning
   }, []);

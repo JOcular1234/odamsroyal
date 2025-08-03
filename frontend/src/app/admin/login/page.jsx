@@ -105,10 +105,14 @@ export default function AdminLogin() {
           console.log('Username stored in localStorage:', data.username);
         }
         toast.success('Login successful! Redirecting...');
+        // Set token as cookie for backend compatibility
+        if (data.token) {
+          document.cookie = `admin_token=${data.token}; path=/; SameSite=Strict; Secure`;
+        }
         // Small delay for toast to show
         setTimeout(() => {
           window.location.reload();
-        }, 1000);
+        }, 500);
       } else {
         const data = await res.json();
         const errorMessage = data.message || 'Invalid credentials';

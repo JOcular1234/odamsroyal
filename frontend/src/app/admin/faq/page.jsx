@@ -2,6 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from 'next/navigation';
 
 export default function AdminFAQPage() {
   const [faqs, setFaqs] = useState([]);
@@ -9,10 +10,53 @@ export default function AdminFAQPage() {
   const [form, setForm] = useState({ question: "", answer: "" });
   const [token, setToken] = useState("");
 
+  const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
+
   useEffect(() => {
-    setToken(localStorage.getItem("admin_token") || "");
-    fetchFaqs();
-  }, []);
+    const checkAuthAndFetch = async () => {
+      const t = localStorage.getItem("admin_token") || "";
+      if (!t) {
+        router.replace('/admin/login');
+        return;
+      }
+      // Optionally verify token with backend
+      try {
+        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'https://odamroyal.onrender.com') + '/api/admin/dashboard', {
+          credentials: 'include',
+          headers: { 'Authorization': `Bearer ${t}` },
+        });
+        if (!res.ok) {
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_role');
+          localStorage.removeItem('admin_username');
+          router.replace('/admin/login');
+          return;
+        }
+      } catch {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_role');
+        localStorage.removeItem('admin_username');
+        router.replace('/admin/login');
+        return;
+      }
+      setToken(t);
+      fetchFaqs();
+      setIsChecking(false);
+    };
+    checkAuthAndFetch();
+  }, [router]);
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   async function fetchFaqs() {
     try {

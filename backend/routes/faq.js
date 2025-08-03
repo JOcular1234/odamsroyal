@@ -2,10 +2,21 @@
 const express = require('express');
 const router = express.Router();
 const Faq = require('../models/Faq');
-const verifyToken = require('../middleware/verifyToken');
+// const verifyToken = require('../middleware/verifyToken');
 
-// Get all FAQs (public)
-router.get('/', async (req, res) => {
+// Public: anyone can get FAQs
+router.get('/public', async (req, res) => {
+  try {
+    const faqs = await Faq.find().sort({ createdAt: -1 });
+    res.json(faqs);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch FAQs', error: err.message });
+  }
+});
+
+// Get all FAQs (admin only)
+const { verifyToken } = require('./admin');
+router.get('/', verifyToken, async (req, res) => {
   try {
     const faqs = await Faq.find().sort({ createdAt: -1 });
     res.json(faqs);

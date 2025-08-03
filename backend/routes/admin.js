@@ -12,10 +12,19 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = '2h';
 
 // Middleware to verify JWT
+// Enhanced token verification middleware that checks both cookie and header
 const verifyToken = (req, res, next) => {
   try {
+    let token = null;
     const cookies = cookie.parse(req.headers.cookie || '');
-    const token = cookies.admin_token;
+    token = cookies.admin_token;
+    // If no cookie token, try Authorization header
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
