@@ -242,7 +242,7 @@ export default function StaffManagement() {
       )}
 
       {/* Staff Table */}
-      {loading ? (
+      {staffLoading ? (
         <div className="flex justify-center py-16">
           <span className="text-gray-400 text-lg">Loading staff...</span>
         </div>
