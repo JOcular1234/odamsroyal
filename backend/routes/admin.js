@@ -189,6 +189,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       message: 'Login successful',
       token, // Send token in response for frontend to store
       role: admin.role, // Send user role for frontend
+      username: admin.username, // Send username for frontend to store
     });
   } catch (error) {
     console.error('Login error:', error.message);
@@ -390,5 +391,6 @@ router.post('/logout', (req, res) => {
 
 module.exports = {
   router,
-  verifyToken: enhancedVerifyToken
+  verifyToken: enhancedVerifyToken,
+  requireRole
 };

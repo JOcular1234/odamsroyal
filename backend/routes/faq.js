@@ -15,8 +15,8 @@ router.get('/public', async (req, res) => {
 });
 
 // Get all FAQs (admin only)
-const { verifyToken } = require('./admin');
-router.get('/', verifyToken, async (req, res) => {
+const { verifyToken, requireRole } = require('./admin');
+router.get('/', verifyToken, requireRole('admin', 'staff'), async (req, res) => {
   try {
     const faqs = await Faq.find().sort({ createdAt: -1 });
     res.json(faqs);
@@ -26,7 +26,7 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 // Create FAQ (admin only)
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, requireRole('admin', 'staff'), async (req, res) => {
   try {
     const { question, answer } = req.body;
     if (!question || !answer) return res.status(400).json({ message: 'Question and answer required' });
@@ -39,7 +39,7 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // Update FAQ (admin only)
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', verifyToken, requireRole('admin', 'staff'), async (req, res) => {
   try {
     const { question, answer } = req.body;
     const faq = await Faq.findByIdAndUpdate(
@@ -55,7 +55,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Delete FAQ (admin only)
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, requireRole('admin', 'staff'), async (req, res) => {
   try {
     const faq = await Faq.findByIdAndDelete(req.params.id);
     if (!faq) return res.status(404).json({ message: 'FAQ not found' });
