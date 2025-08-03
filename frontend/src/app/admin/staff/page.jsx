@@ -29,27 +29,28 @@ export default function StaffManagement() {
   }, []);
 
   // Fetch staff
+  async function fetchStaff() {
+    setStaffLoading(true);
+    setError('');
+    try {
+      const res = await adminAuth.makeAuthenticatedRequest('/admin/list', { method: 'GET' });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        console.error('Failed to fetch staff:', res.status, res.statusText, text);
+        throw new Error(`Failed to fetch staff: ${res.status} ${res.statusText} ${text}`);
+      }
+      const data = await res.json();
+      setStaff(data.users.filter((u) => u.role === 'staff'));
+    } catch (err) {
+      console.error('Fetch staff error (catch):', err);
+      setError(err.message || 'Failed to fetch staff');
+    } finally {
+      setStaffLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (isChecking || role !== 'admin') return;
-    async function fetchStaff() {
-      setStaffLoading(true);
-      setError('');
-      try {
-        const res = await adminAuth.makeAuthenticatedRequest('/admin/list', { method: 'GET' });
-        if (!res.ok) {
-          const text = await res.text().catch(() => '');
-          console.error('Failed to fetch staff:', res.status, res.statusText, text);
-          throw new Error(`Failed to fetch staff: ${res.status} ${res.statusText} ${text}`);
-        }
-        const data = await res.json();
-        setStaff(data.users.filter((u) => u.role === 'staff'));
-      } catch (err) {
-        console.error('Fetch staff error (catch):', err);
-        setError(err.message || 'Failed to fetch staff');
-      } finally {
-        setStaffLoading(false);
-      }
-    }
     fetchStaff();
   }, [isChecking, role]);
 

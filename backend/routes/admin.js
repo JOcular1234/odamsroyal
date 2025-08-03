@@ -131,7 +131,7 @@ router.put('/admin/edit/:id', enhancedVerifyToken, requireRole('admin'), async (
 });
 
 // Admin creates staff or admin user
-router.post('/admin/create', enhancedVerifyToken, requireRole('admin'), async (req, res) => {
+router.post('/create', enhancedVerifyToken, requireRole('admin'), async (req, res) => {
   try {
     const { username, password, role } = req.body;
     if (!username || !password) {
@@ -364,6 +364,17 @@ router.patch('/appointments/:id', enhancedVerifyToken, async (req, res) => {
   } catch (error) {
     console.error('Update appointment error:', error);
     res.status(500).json({ message: 'Error updating appointment', error });
+  }
+});
+
+// Delete staff (admin only)
+router.delete('/delete/:id', enhancedVerifyToken, requireRole('admin'), async (req, res) => {
+  try {
+    const deleted = await Admin.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Staff user not found' });
+    res.status(200).json({ message: 'Staff deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting staff', error: error.message });
   }
 });
 
