@@ -16,6 +16,13 @@ import {
 } from './AdminAppointmentsIcons';
 
 export default function AdminAppointments() {
+  const [role, setRole] = useState('');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+    }
+  }, []);
+  const [showNoteModal, setShowNoteModal] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -125,6 +132,7 @@ export default function AdminAppointments() {
                 <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Service</th>
                 <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Appoint. Date</th>
                 <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Time</th>
+                <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Note</th>
                 <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Booked At</th>
                 <th className="py-3 px-4 text-left text-white font-bold tracking-wide">Status</th>
                 <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tr-2xl">Actions</th>
@@ -174,6 +182,19 @@ export default function AdminAppointments() {
                     <td className="py-2 px-4 whitespace-nowrap">{a.service}</td>
                     <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><CalendarDaysIcon className="w-4 h-4 text-[#f97316]" />{new Date(a.date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</div></td>
                     <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><ClockIcon className="w-4 h-4 text-[#f97316]" />{a.time}</div></td>
+                    <td className="py-2 px-4 whitespace-nowrap">
+  {a.note ? (
+    <button
+      className="px-3 py-1 bg-[#f97316] text-white rounded-lg font-semibold hover:bg-[#e86a15] transition-all duration-300 font-sans text-sm"
+      onClick={() => setShowNoteModal({ name: a.name, note: a.note })}
+      aria-label={`View note from ${a.name || 'Anonymous'}`}
+    >
+      View Note
+    </button>
+  ) : (
+    <span className="text-gray-400">-</span>
+  )}
+</td>
                     <td className="py-2 px-4 whitespace-nowrap"><div className="flex items-center gap-1"><CalendarDaysIcon className="w-4 h-4 text-gray-400" />{a.createdAt ? new Date(a.createdAt).toLocaleString() : '-'}</div></td>
                     <td className="py-2 px-4 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${statusProps.color} gap-1`}>
@@ -235,6 +256,28 @@ export default function AdminAppointments() {
         </div>
       </div>
     )}
-  </section>
+    {/* Note Modal */}
+    {showNoteModal && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900">Appointment Note</h3>
+          <div className="mb-4">
+            <div className="text-gray-700 font-semibold mb-1">From:</div>
+            <div className="text-gray-900 mb-2">{showNoteModal.name || 'Anonymous'}</div>
+            <div className="text-gray-700 font-semibold mb-1">Note:</div>
+            <div className="text-gray-800 whitespace-pre-line">{showNoteModal.note}</div>
+          </div>
+          <div className="flex justify-end">
+            <button
+              className="px-4 py-2 rounded bg-gray-200 text-gray-700 hover:bg-gray-300"
+              onClick={() => setShowNoteModal(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </section>
   );
-} 
+}

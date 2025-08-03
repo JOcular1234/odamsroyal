@@ -1,5 +1,5 @@
 // frontend/src/app/layout.jsx
-// 'use client';
+'use client';
 import { useState } from 'react';
 import './globals.css';
 import Navbar from '../components/Navbar';

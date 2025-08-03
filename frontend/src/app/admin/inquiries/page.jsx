@@ -27,6 +27,12 @@ const formatDate = (date) =>
     : 'N/A';
 
 export default function AdminInquiries() {
+  const [role, setRole] = useState('');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+    }
+  }, []);
   const router = useRouter();
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);

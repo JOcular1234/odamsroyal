@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const AdminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'staff'], default: 'staff', required: true },
 });
 
 AdminSchema.pre('save', async function (next) {

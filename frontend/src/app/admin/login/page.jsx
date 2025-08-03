@@ -1,6 +1,7 @@
 // frontend/src/app/admin/login/page.jsx
 'use client';
 import { useState, useEffect } from 'react';
+
 import { useRouter } from 'next/navigation';
 import { ToastContainer, toast } from './toast-setup';
 
@@ -11,6 +12,7 @@ export default function AdminLogin() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
 
   // API URL with fallback
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamroyal.onrender.com';
@@ -94,13 +96,18 @@ export default function AdminLogin() {
           localStorage.setItem('admin_token', data.token);
           console.log('Token stored in localStorage');
         }
-        
+        if (data.role) {
+          localStorage.setItem('admin_role', data.role);
+          console.log('Role stored in localStorage:', data.role);
+        }
+        if (data.username) {
+          localStorage.setItem('admin_username', data.username);
+          console.log('Username stored in localStorage:', data.username);
+        }
         toast.success('Login successful! Redirecting...');
-        
         // Small delay for toast to show
         setTimeout(() => {
-          router.push('/admin/appointments');
-          router.refresh();
+          window.location.reload();
         }, 1000);
       } else {
         const data = await res.json();

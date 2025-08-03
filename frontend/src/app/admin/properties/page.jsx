@@ -28,7 +28,21 @@ const CLOUDINARY_URL = CLOUDINARY_CLOUD_NAME
   : null;
 
 export default function AdminProperties() {
+  const [role, setRole] = useState('');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+    }
+  }, []);
   // State declarations (unchanged)
+  if (role && role !== 'admin') {
+    return (
+      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-xl shadow text-center">
+        <h2 className="text-2xl font-bold text-[#f97316] mb-4">Access Restricted</h2>
+        <p className="text-gray-700">You do not have permission to manage properties.</p>
+      </div>
+    );
+  }
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
