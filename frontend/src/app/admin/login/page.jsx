@@ -15,8 +15,8 @@ export default function AdminLogin() {
 
 
   // API URL with fallback
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://odamroyal.onrender.com';
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL environment variable is not set!');
   // Redirect if already authenticated
   useEffect(() => {
     const checkAuth = async () => {
@@ -110,9 +110,11 @@ export default function AdminLogin() {
           document.cookie = `admin_token=${data.token}; path=/; SameSite=Strict; Secure`;
         }
         // Small delay for toast to show
-        setTimeout(() => {
+        // setTimeout(() => {
           window.location.reload();
-        }, 500);
+          router.replace('/admin/appointments'); // or your desired admin page
+
+        // }, 500);
       } else {
         const data = await res.json();
         const errorMessage = data.message || 'Invalid credentials';

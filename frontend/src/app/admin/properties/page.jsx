@@ -1,4 +1,4 @@
-// frontend/src/app/admin/properties/page.jsx
+// // frontend/src/app/admin/properties/page.jsx
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import adminAuth from '../../../utils/adminAuth';
@@ -16,9 +16,9 @@ import {
 import { 
   BuildingLibraryIcon as BedIcon, 
   BuildingOffice2Icon as BathIcon 
-} from '@heroicons/react/24/solid'; // Use closest Heroicons for missing ones
-
+} from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 // Environment variables for Cloudinary
 const CLOUDINARY_UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
@@ -28,21 +28,8 @@ const CLOUDINARY_URL = CLOUDINARY_CLOUD_NAME
   : null;
 
 export default function AdminProperties() {
+  // Declare all hooks at the top
   const [role, setRole] = useState('');
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setRole(localStorage.getItem('admin_role') || '');
-    }
-  }, []);
-  // State declarations (unchanged)
-  if (role && role !== 'admin') {
-    return (
-      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-xl shadow text-center">
-        <h2 className="text-2xl font-bold text-[#f97316] mb-4">Access Restricted</h2>
-        <p className="text-gray-700">You do not have permission to manage properties.</p>
-      </div>
-    );
-  }
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -67,23 +54,30 @@ export default function AdminProperties() {
   const [isEditing, setIsEditing] = useState(false);
   const [deletePropertyId, setDeletePropertyId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
   const router = useRouter();
   const editModalRef = useRef(null);
   const deleteModalRef = useRef(null);
+  const { isChecking } = useAdminAuth();
 
-  // Debounce search input (unchanged)
+  // useEffect for role
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+    }
+  }, []);
+
+  // Debounce search input
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedSearch(search.trim().toLowerCase()), 300);
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Fetch properties on mount (unchanged)
+  // Fetch properties on mount
   useEffect(() => {
     fetchProperties();
   }, []);
 
-  // Focus management for modals (unchanged)
+  // Focus management for modals
   useEffect(() => {
     if (isEditing && editModalRef.current) {
       editModalRef.current.focus();
@@ -93,7 +87,7 @@ export default function AdminProperties() {
     }
   }, [isEditing, deletePropertyId]);
 
-  // Fetch properties from API (unchanged)
+  // Fetch properties from API
   async function fetchProperties() {
     setLoading(true);
     setError('');
@@ -115,7 +109,28 @@ export default function AdminProperties() {
     }
   }
 
-  // Handle input changes for new property form (unchanged)
+  // Early returns after all hooks
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (role && role !== 'admin') {
+    return (
+      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-xl shadow text-center">
+        <h2 className="text-2xl font-bold text-[#f97316] mb-4">Access Restricted</h2>
+        <p className="text-gray-700">You do not have permission to manage properties.</p>
+      </div>
+    );
+  }
+
+  // Rest of the component logic (unchanged)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'description' && value.length > 1000) return;
@@ -123,7 +138,6 @@ export default function AdminProperties() {
     setFormError('');
   };
 
-  // Handle image file uploads (unchanged)
   const handleFileChange = async (e) => {
     if (!CLOUDINARY_URL || !CLOUDINARY_UPLOAD_PRESET) {
       setFormError('Cloudinary configuration is missing');
@@ -159,7 +173,6 @@ export default function AdminProperties() {
     }
   };
 
-  // Add image URL manually (unchanged)
   const handleAddImageUrl = () => {
     if (
       newProperty.imageUrlInput &&
@@ -174,7 +187,6 @@ export default function AdminProperties() {
     }
   };
 
-  // Remove an image (unchanged)
   const handleRemoveImage = (url) => {
     setNewProperty((prev) => ({
       ...prev,
@@ -182,7 +194,6 @@ export default function AdminProperties() {
     }));
   };
 
-  // Add new property (unchanged)
   const handleAddProperty = async (e) => {
     e.preventDefault();
     if (!newProperty.title || !newProperty.description) {
@@ -238,7 +249,6 @@ export default function AdminProperties() {
     }
   };
 
-  // Start editing a property (unchanged)
   const handleEditClick = (property) => {
     setEditProperty({
       _id: property._id,
@@ -254,12 +264,10 @@ export default function AdminProperties() {
     setIsEditing(true);
   };
 
-  // Start delete confirmation (unchanged)
   const handleDeleteClick = (property) => {
     setDeletePropertyId(property._id);
   };
 
-  // Edit modal
   const renderEditModal = () => (
     isEditing &&
     editProperty && (
@@ -406,7 +414,6 @@ export default function AdminProperties() {
     )
   );
 
-  // Delete confirmation modal
   const renderDeleteConfirm = () => (
     deletePropertyId && (
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
@@ -461,7 +468,6 @@ export default function AdminProperties() {
     )
   );
 
-  // Filter properties based on debounced search (unchanged)
   const filteredProperties = properties.filter((p) => {
     if (!debouncedSearch) return true;
     return (
@@ -475,7 +481,6 @@ export default function AdminProperties() {
     <>
       {renderEditModal()}
       {renderDeleteConfirm()}
-      {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
           <div
@@ -509,7 +514,6 @@ export default function AdminProperties() {
           </h2>
         </div>
 
-        {/* Add Property Form */}
         <form
           onSubmit={handleAddProperty}
           className="mb-12 bg-white rounded-2xl shadow-xl p-8 space-y-6 border border-[#f97316]/10"
@@ -525,455 +529,453 @@ export default function AdminProperties() {
               <HomeIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
-                name="title"
-                id="title"
-                placeholder="Enter property title"
-                value={newProperty.title}
-                onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  formError.includes('Title') ? 'border-red-500' : 'border-gray-200'
-                } shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none`}
-                required
-                aria-label="Property Title"
-                aria-describedby={formError.includes('Title') ? 'title-error' : undefined}
-              />
-            </div>
-            {formError.includes('Title') && (
-              <p id="title-error" className="text-red-500 text-xs mt-1" aria-live="polite">
-                {formError}
-              </p>
-            )}
-          </div>
+        name="title"
+        id="title"
+        placeholder="Enter property title"
+        value={newProperty.title}
+        onChange={handleInputChange}
+        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+          formError.includes('Title') ? 'border-red-500' : 'border-gray-200'
+        } shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none`}
+        required
+        aria-label="Property Title"
+        aria-describedby={formError.includes('Title') ? 'title-error' : undefined}
+      />
+    </div>
+    {formError.includes('Title') && (
+      <p id="title-error" className="text-red-500 text-xs mt-1" aria-live="polite">
+        {formError}
+      </p>
+    )}
+  </div>
 
-          <div>
-            <label
-              htmlFor="price"
-              className="block text-sm font-semibold text-gray-900 mb-1"
-            >
-              Price
-            </label>
-            <div className="relative">
-              <CurrencyDollarIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-              <input
-                type="text"
-                name="price"
-                id="price"
-                placeholder="Enter property price (optional)"
-                value={newProperty.price}
-                onChange={handleInputChange}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
-                aria-label="Property Price"
-              />
-            </div>
-          </div>
+  <div>
+    <label
+      htmlFor="price"
+      className="block text-sm font-semibold text-gray-900 mb-1"
+    >
+      Price
+    </label>
+    <div className="relative">
+      <CurrencyDollarIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+      <input
+        type="text"
+        name="price"
+        id="price"
+        placeholder="Enter property price (optional)"
+        value={newProperty.price}
+        onChange={handleInputChange}
+        className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+        aria-label="Property Price"
+      />
+    </div>
+  </div>
 
-          <div>
-            <label
-              htmlFor="location"
-              className="block text-sm font-semibold text-gray-900 mb-1"
-            >
-              Location
-            </label>
-            <div className="relative">
-              <MapPinIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-              <input
-                type="text"
-                name="location"
-                id="location"
-                placeholder="Enter property location (optional)"
-                value={newProperty.location}
-                onChange={handleInputChange}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
-                aria-label="Property Location"
-              />
-            </div>
-          </div>
+  <div>
+    <label
+      htmlFor="location"
+      className="block text-sm font-semibold text-gray-900 mb-1"
+    >
+      Location
+    </label>
+    <div className="relative">
+      <MapPinIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+      <input
+        type="text"
+        name="location"
+        id="location"
+        placeholder="Enter property location (optional)"
+        value={newProperty.location}
+        onChange={handleInputChange}
+        className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+        aria-label="Property Location"
+      />
+    </div>
+  </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label
-                htmlFor="bedrooms"
-                className="block text-sm font-semibold text-gray-900 mb-1"
-              >
-                Bedrooms
-              </label>
-              <div className="relative">
-                <BedIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-                <input
-                  type="number"
-                  name="bedrooms"
-                  id="bedrooms"
-                  placeholder="e.g. 3"
-                  value={newProperty.bedrooms}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
-                  aria-label="Bedrooms"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="bathrooms"
-                className="block text-sm font-semibold text-gray-900 mb-1"
-              >
-                Bathrooms
-              </label>
-              <div className="relative">
-                <BathIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-                <input
-                  type="number"
-                  name="bathrooms"
-                  id="bathrooms"
-                  placeholder="e.g. 2"
-                  value={newProperty.bathrooms}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
-                  aria-label="Bathrooms"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="area"
-                className="block text-sm font-semibold text-gray-900 mb-1"
-              >
-                Area (sq ft)
-              </label>
-              <div className="relative">
-                <Square3Stack3DIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-                <input
-                  type="number"
-                  name="area"
-                  id="area"
-                  placeholder="e.g. 1200"
-                  value={newProperty.area}
-                  onChange={handleInputChange}
-                  min="0"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
-                  aria-label="Area (sq ft)"
-                />
-              </div>
-            </div>
-          </div>
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div>
+      <label
+        htmlFor="bedrooms"
+        className="block text-sm font-semibold text-gray-900 mb-1"
+      >
+        Bedrooms
+      </label>
+      <div className="relative">
+        <BedIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+        <input
+          type="number"
+          name="bedrooms"
+          id="bedrooms"
+          placeholder="e.g. 3"
+          value={newProperty.bedrooms}
+          onChange={handleInputChange}
+          min="0"
+          className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+          aria-label="Bedrooms"
+        />
+      </div>
+    </div>
+    <div>
+      <label
+        htmlFor="bathrooms"
+        className="block text-sm font-semibold text-gray-900 mb-1"
+      >
+        Bathrooms
+      </label>
+      <div className="relative">
+        <BathIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+        <input
+          type="number"
+          name="bathrooms"
+          id="bathrooms"
+          placeholder="e.g. 2"
+          value={newProperty.bathrooms}
+          onChange={handleInputChange}
+          min="0"
+          className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+          aria-label="Bathrooms"
+        />
+      </div>
+    </div>
+    <div>
+      <label
+        htmlFor="area"
+        className="block text-sm font-semibold text-gray-900 mb-1"
+      >
+        Area (sq ft)
+      </label>
+      <div className="relative">
+        <Square3Stack3DIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+        <input
+          type="number"
+          name="area"
+          id="area"
+          placeholder="e.g. 1200"
+          value={newProperty.area}
+          onChange={handleInputChange}
+          min="0"
+          className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+          aria-label="Area (sq ft)"
+        />
+      </div>
+    </div>
+  </div>
 
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-semibold text-gray-900 mb-1"
-            >
-              Description
-            </label>
-            <div className="relative">
-              <DocumentTextIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-              <textarea
-                name="description"
-                id="description"
-                placeholder="Enter property description"
-                value={newProperty.description}
-                onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  formError.includes('Description') ? 'border-red-500' : 'border-gray-200'
-                } shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none resize-none h-32`}
-                required
-                aria-label="Property Description"
-                aria-describedby={formError.includes('Description') ? 'description-error' : undefined}
-              />
-            </div>
-            <p className="text-xs text-gray-700 mt-1">
-              {newProperty.description.length}/1000 characters
-            </p>
-            {formError.includes('Description') && (
-              <p id="description-error" className="text-red-500 text-xs mt-1" aria-live="polite">
-                {formError}
-              </p>
-            )}
-          </div>
+  <div>
+    <label
+      htmlFor="description"
+      className="block text-sm font-semibold text-gray-900 mb-1"
+    >
+      Description
+    </label>
+    <div className="relative">
+      <DocumentTextIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+      <textarea
+        name="description"
+        id="description"
+        placeholder="Enter property description"
+        value={newProperty.description}
+        onChange={handleInputChange}
+        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+          formError.includes('Description') ? 'border-red-500' : 'border-gray-200'
+        } shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none resize-none h-32`}
+        required
+        aria-label="Property Description"
+        aria-describedby={formError.includes('Description') ? 'description-error' : undefined}
+      />
+    </div>
+    <p className="text-xs text-gray-700 mt-1">
+      {newProperty.description.length}/1000 characters
+    </p>
+    {formError.includes('Description') && (
+      <p id="description-error" className="text-red-500 text-xs mt-1" aria-live="polite">
+        {formError}
+      </p>
+    )}
+  </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
-              Upload Images (max 5)
-            </label>
-            <div
-              className={`relative w-full p-8 border-2 border-dashed rounded-lg text-center transition ${
-                uploading || newProperty.images.length >= 5
-                  ? 'border-gray-200 bg-white cursor-not-allowed'
-                  : 'border-[#f97316] bg-white hover:border-[#e56b15]'
-              }`}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileChange}
-                disabled={uploading || newProperty.images.length >= 5}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                aria-label="Upload images"
-              />
-              <div className="flex flex-col items-center">
-                <CloudArrowUpIcon
-                  className={`w-12 h-12 mb-3 ${
-                    uploading || newProperty.images.length >= 5 ? 'text-gray-400' : 'text-[#f97316]'
-                  }`}
-                  aria-hidden="true"
-                />
-                <p className="text-sm text-gray-700 font-medium">
-                  {uploading
-                    ? 'Uploading...'
-                    : newProperty.images.length >= 5
-                    ? 'Maximum 5 images reached'
-                    : 'Drag and drop images or click to upload'}
-                </p>
-              </div>
-            </div>
-          </div>
+  <div>
+    <label className="block text-sm font-semibold text-gray-900 mb-1">
+      Upload Images (max 5)
+    </label>
+    <div
+      className={`relative w-full p-8 border-2 border-dashed rounded-lg text-center transition ${
+        uploading || newProperty.images.length >= 5
+          ? 'border-gray-200 bg-white cursor-not-allowed'
+          : 'border-[#f97316] bg-white hover:border-[#e56b15]'
+      }`}
+    >
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileChange}
+        disabled={uploading || newProperty.images.length >= 5}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+        aria-label="Upload images"
+      />
+      <div className="flex flex-col items-center">
+        <CloudArrowUpIcon
+          className={`w-12 h-12 mb-3 ${
+            uploading || newProperty.images.length >= 5 ? 'text-gray-400' : 'text-[#f97316]'
+          }`}
+          aria-hidden="true"
+        />
+        <p className="text-sm text-gray-700 font-medium">
+          {uploading
+            ? 'Uploading...'
+            : newProperty.images.length >= 5
+            ? 'Maximum 5 images reached'
+            : 'Drag and drop images or click to upload'}
+        </p>
+      </div>
+    </div>
+  </div>
 
-          <div className="flex gap-4 items-center">
-            <div className="relative flex-1">
-              <PhotoIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
-              <input
-                type="text"
-                name="imageUrlInput"
-                placeholder="Or paste image URL"
-                value={newProperty.imageUrlInput}
-                onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
-                  formError.includes('image') ? 'border-red-500' : 'border-gray-200'
-                } shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none`}
-                disabled={newProperty.images.length >= 5}
-                aria-label="Image URL"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleAddImageUrl}
-              className="px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e56b15] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-              disabled={!newProperty.imageUrlInput || newProperty.images.length >= 5}
-              aria-label="Add image URL"
-            >
-              Add URL
-            </button>
-          </div>
+  <div className="flex gap-4 items-center">
+    <div className="relative flex-1">
+      <PhotoIcon className="w-5 h-5 text-[#f97316] absolute left-3 top-2.5 pointer-events-none" />
+      <input
+        type="text"
+        name="imageUrlInput"
+        placeholder="Or paste image URL"
+        value={newProperty.imageUrlInput}
+        onChange={handleInputChange}
+        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+          formError.includes('image') ? 'border-red-500' : 'border-gray-200'
+        } shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none`}
+        disabled={newProperty.images.length >= 5}
+        aria-label="Image URL"
+      />
+    </div>
+    <button
+      type="button"
+      onClick={handleAddImageUrl}
+      className="px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e56b15] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+      disabled={!newProperty.imageUrlInput || newProperty.images.length >= 5}
+      aria-label="Add image URL"
+    >
+      Add URL
+    </button>
+  </div>
 
-          {newProperty.images.length > 0 && (
-            <div className="flex flex-wrap gap-4">
-              {newProperty.images.map((img, idx) => (
-                <div key={idx} className="relative group">
-                  <img
-                    src={img}
-                    alt={`preview-${idx}`}
-                    className="w-28 h-24 object-cover rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveImage(img)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm shadow-md hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100"
-                    title="Remove image"
-                    aria-label={`Remove image ${idx + 1}`}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {formError && (
-            <div
-              className="bg-red-100 border-l-4 border-red-500 text-red-500 p-4 rounded-lg"
-              aria-live="polite"
-            >
-              {formError}
-            </div>
-          )}
-
+  {newProperty.images.length > 0 && (
+    <div className="flex flex-wrap gap-4">
+      {newProperty.images.map((img, idx) => (
+        <div key={idx} className="relative group">
+          <img
+            src={img}
+            alt={`preview-${idx}`}
+            className="w-28 h-24 object-cover rounded-lg shadow-md transition-transform duration-300 group-hover:scale-105"
+          />
           <button
-            type="submit"
-            className="w-full px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e56b15] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
-            disabled={adding || uploading}
-            aria-label="Add Property"
+            type="button"
+            onClick={() => handleRemoveImage(img)}
+            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm shadow-md hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100"
+            title="Remove image"
+            aria-label={`Remove image ${idx + 1}`}
           >
-            {adding ? (
-              <span className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Adding...
-              </span>
-            ) : uploading ? (
-              'Uploading...'
-            ) : (
-              'Add Property'
-            )}
+            ×
           </button>
-        </form>
-
-        {/* Search Bar */}
-        <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
-          <div className="relative w-full md:w-72">
-            <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5 pointer-events-none" />
-            <input
-              id="property-search"
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title, location, or description..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
-              aria-label="Search properties"
-            />
-          </div>
         </div>
+      ))}
+    </div>
+  )}
 
-        {/* Properties Table */}
-        {loading ? (
-          <div className="flex justify-center py-16">
-            <span className="text-gray-400 text-lg">Loading...</span>
-          </div>
-        ) : error ? (
-          <div className="flex justify-center py-10">
-            <span className="text-red-500 font-semibold">{error}</span>
-          </div>
-        ) : filteredProperties.length === 0 ? (
-          <div className="flex justify-center py-12">
-            <span className="text-gray-400 text-lg">No properties found.</span>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-2xl shadow-xl border border-[#f97316]/10 bg-white">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-[#f97316]">
-                <tr>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tl-2xl">
-                    Title
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Price
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Location
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Bedrooms
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Bathrooms
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Area (sq ft)
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Description
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
-                    Images
-                  </th>
-                  <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tr-2xl">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProperties.map((p) => (
-                  <tr
-                    key={p._id}
-                    className="border-b last:border-none hover:bg-[#f97316]/5 transition"
-                  >
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <HomeIcon className="w-5 h-5 text-[#f97316]" />
-                        <span className="font-semibold text-gray-900">{p.title}</span>
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <CurrencyDollarIcon className="w-5 h-5 text-[#f97316]" />
-                        {p.price || '-'}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <MapPinIcon className="w-5 h-5 text-[#f97316]" />
-                        {p.location || '-'}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <BedIcon className="w-5 h-5 text-[#f97316]" />
-                        {p.bedrooms || '-'}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <BathIcon className="w-5 h-5 text-[#f97316]" />
-                        {p.bathrooms || '-'}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <Square3Stack3DIcon className="w-5 h-5 text-[#f97316]" />
-                        {p.area || '-'}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 max-w-md truncate">
-                      <div className="flex items-center gap-2">
-                        <DocumentTextIcon className="w-5 h-5 text-[#f97316]" />
-                        {p.description}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className="flex gap-3 flex-wrap">
-                        {(p.images || []).map((img, idx) => (
-                          <img
-                            key={idx}
-                            src={img}
-                            alt={`${p.title}-${idx}`}
-                            className="w-24 h-20 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
-                          />
-                        ))}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4 whitespace-nowrap">
-                      <div className="flex gap-2">
-                        <button
-                          className="px-3 py-1 rounded bg-green-500 text-white text-xs font-bold hover:bg-green-600 transition"
-                          onClick={() => handleEditClick(p)}
-                          aria-label={`Edit ${p.title}`}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="px-3 py-1 rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition"
-                          onClick={() => handleDeleteClick(p)}
-                          aria-label={`Delete ${p.title}`}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+  {formError && (
+    <div
+      className="bg-red-100 border-l-4 border-red-500 text-red-500 p-4 rounded-lg"
+      aria-live="polite"
+    >
+      {formError}
+    </div>
+  )}
+
+  <button
+    type="submit"
+    className="w-full px-4 py-2 rounded bg-[#f97316] text-white hover:bg-[#e56b15] font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition"
+    disabled={adding || uploading}
+    aria-label="Add Property"
+  >
+    {adding ? (
+      <span className="flex items-center justify-center">
+        <svg
+          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          />
+        </svg>
+        Adding...
+      </span>
+    ) : uploading ? (
+      'Uploading...'
+    ) : (
+      'Add Property'
+    )}
+  </button>
+</form>
+
+<div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+  <div className="relative w-full md:w-72">
+    <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-2.5 pointer-events-none" />
+    <input
+      id="property-search"
+      type="search"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      placeholder="Search by title, location, or description..."
+      className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 shadow-sm focus:ring-2 focus:ring-[#f97316] focus:outline-none"
+      aria-label="Search properties"
+    />
+  </div>
+</div>
+
+{loading ? (
+  <div className="flex justify-center py-16">
+    <span className="text-gray-400 text-lg">Loading...</span>
+  </div>
+) : error ? (
+  <div className="flex justify-center py-10">
+    <span className="text-red-500 font-semibold">{error}</span>
+  </div>
+) : filteredProperties.length === 0 ? (
+  <div className="flex justify-center py-12">
+    <span className="text-gray-400 text-lg">No properties found.</span>
+  </div>
+) : (
+  <div className="overflow-x-auto rounded-2xl shadow-xl border border-[#f97316]/10 bg-white">
+    <table className="min-w-full divide-y divide-gray-100">
+      <thead className="bg-[#f97316]">
+        <tr>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tl-2xl">
+            Title
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Price
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Location
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Bedrooms
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Bathrooms
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Area (sq ft)
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Description
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide">
+            Images
+          </th>
+          <th className="py-3 px-4 text-left text-white font-bold tracking-wide rounded-tr-2xl">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredProperties.map((p) => (
+          <tr
+            key={p._id}
+            className="border-b last:border-none hover:bg-[#f97316]/5 transition"
+          >
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <HomeIcon className="w-5 h-5 text-[#f97316]" />
+                <span className="font-semibold text-gray-900">{p.title}</span>
+              </div>
+            </td>
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <CurrencyDollarIcon className="w-5 h-5 text-[#f97316]" />
+                {p.price || '-'}
+              </div>
+            </td>
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <MapPinIcon className="w-5 h-5 text-[#f97316]" />
+                {p.location || '-'}
+              </div>
+            </td>
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <BedIcon className="w-5 h-5 text-[#f97316]" />
+                {p.bedrooms || '-'}
+              </div>
+            </td>
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <BathIcon className="w-5 h-5 text-[#f97316]" />
+                {p.bathrooms || '-'}
+              </div>
+            </td>
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex items-center gap-2">
+                <Square3Stack3DIcon className="w-5 h-5 text-[#f97316]" />
+                {p.area || '-'}
+              </div>
+            </td>
+            <td className="py-2 px-4 max-w-md truncate">
+              <div className="flex items-center gap-2">
+                <DocumentTextIcon className="w-5 h-5 text-[#f97316]" />
+                {p.description}
+              </div>
+            </td>
+            <td className="py-2 px-4">
+              <div className="flex gap-3 flex-wrap">
+                {(p.images || []).map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`${p.title}-${idx}`}
+                    className="w-24 h-20 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
+                  />
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-    </>
-  );
+              </div>
+            </td>
+            <td className="py-2 px-4 whitespace-nowrap">
+              <div className="flex gap-2">
+                <button
+                  className="px-3 py-1 rounded bg-green-500 text-white text-xs font-bold hover:bg-green-600 transition"
+                  onClick={() => handleEditClick(p)}
+                  aria-label={`Edit ${p.title}`}
+                >
+                  Edit
+                </button>
+                <button
+                  className="px-3 py-1 rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition"
+                  onClick={() => handleDeleteClick(p)}
+                  aria-label={`Delete ${p.title}`}
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
+</section>
+</>
+);
 }

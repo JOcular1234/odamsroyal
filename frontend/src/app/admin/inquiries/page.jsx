@@ -1,4 +1,3 @@
-// frontend/src/app/admin/inquiries/page.jsx
 "use client";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,6 +13,7 @@ import {
   HomeModernIcon,
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 const formatDate = (date) =>
   date
@@ -27,12 +27,9 @@ const formatDate = (date) =>
     : 'N/A';
 
 export default function AdminInquiries() {
+  // Declare all hooks at the top
+  const { isChecking } = useAdminAuth();
   const [role, setRole] = useState('');
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setRole(localStorage.getItem('admin_role') || '');
-    }
-  }, []);
   const router = useRouter();
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +46,20 @@ export default function AdminInquiries() {
   const [selectedInquiries, setSelectedInquiries] = useState([]);
   const inquiriesPerPage = 10;
 
+  // useEffect for role
   useEffect(() => {
-    fetchInquiries();
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+    }
   }, []);
+
+  // Fetch inquiries
+  useEffect(() => {
+    if (isChecking) return;
+    const allowedRoles = ['admin', 'staff'];
+    if (role && !allowedRoles.includes(role)) return;
+    fetchInquiries();
+  }, [isChecking, role]);
 
   async function fetchInquiries() {
     setLoading(true);
@@ -77,8 +85,9 @@ export default function AdminInquiries() {
       setError(
         err.response?.data?.message || err.message || 'Failed to fetch inquiries'
       );
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   async function handleDelete(id) {
@@ -144,10 +153,6 @@ export default function AdminInquiries() {
     }
   }
 
-
-
-
-
   async function handleRespond(id, email) {
     try {
       const token = localStorage.getItem('admin_token');
@@ -180,6 +185,26 @@ export default function AdminInquiries() {
     }
   }
 
+  // Early returns after all hooks
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (role && !['admin', 'staff'].includes(role)) {
+    return (
+      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-xl shadow text-center">
+        <h2 className="text-2xl font-bold text-[#f97316] mb-4">Access Restricted</h2>
+        <p className="text-gray-700">You do not have permission to manage inquiries.</p>
+      </div>
+    );
+  }
   const filteredInquiries = inquiries.filter((inq) => {
     const matchesSearch =
       (inq.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
@@ -275,10 +300,7 @@ export default function AdminInquiries() {
             </svg>
           </div>
         ) : error ? (
-          <div
-            className="flex justify-center py-10"
-            aria-live="polite"
-          >
+          <div className="flex justify-center py-10" aria-live="polite">
             <span className="text-red-500 font-semibold">{error}</span>
           </div>
         ) : sortedInquiries.length === 0 ? (
@@ -523,8 +545,7 @@ export default function AdminInquiries() {
               dangerouslySetInnerHTML={{
                 __html: DOMPurify.sanitize(showRespondModal.message || 'No message'),
               }}
-            >
-            </p>
+            ></p>
             <textarea
               className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#f97316] transition-all duration-300 font-sans resize-none h-32"
               placeholder="Write your response..."

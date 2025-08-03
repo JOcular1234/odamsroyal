@@ -1,45 +1,7 @@
-// // frontend/src/app/admin/profile/page.jsx
-// 'use client';
-// import { useEffect, useState } from 'react';
-// import { UserCircleIcon } from '@heroicons/react/24/outline';
-
-// export default function AdminProfile() {
-//   const [profile, setProfile] = useState({ username: '', role: '', createdAt: '', lastLogin: '' });
-
-//   useEffect(() => {
-//     // Try to get info from localStorage (quick demo)
-//     const username = localStorage.getItem('admin_username') || 'Unknown';
-//     const role = localStorage.getItem('admin_role') || 'Unknown';
-//     setProfile((p) => ({ ...p, username, role }));
-//     // You can fetch more info from API here if available
-//   }, []);
-
-//   return (
-//     <section className="max-w-lg mx-auto mt-12 p-8 bg-white rounded-2xl shadow-xl border border-[#f97316]/10 font-sans">
-//       <div className="flex flex-col items-center mb-6">
-//         <UserCircleIcon className="w-24 h-24 text-[#f97316] mb-4" />
-//         <h2 className="text-2xl font-bold text-gray-900 mb-1">{profile.username}</h2>
-//         <span className="text-sm font-medium text-gray-500 mb-2 capitalize">{profile.role}</span>
-//       </div>
-//       <div className="flex flex-col gap-4">
-//         <div className="flex items-center justify-between">
-//           <span className="text-gray-600 font-medium">Username:</span>
-//           <span className="font-semibold text-gray-900">{profile.username}</span>
-//         </div>
-//         <div className="flex items-center justify-between">
-//           <span className="text-gray-600 font-medium">Role:</span>
-//           <span className="font-semibold text-gray-900 capitalize">{profile.role}</span>
-//         </div>
-//       </div>
-
-//     </section>
-//   );
-// }
-
-
 // frontend/src/app/admin/profile/page.jsx
 'use client';
 import { useEffect, useState, useRef } from 'react';
+import adminAuth from '../../../utils/adminAuth';
 import {
   UserCircleIcon,
   ShieldCheckIcon,
@@ -47,7 +9,7 @@ import {
   CheckCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import adminAuth from '../../../utils/adminAuth';
+import useAdminAuth from '@/hooks/useAdminAuth';
 import { useRouter } from 'next/navigation';
 
 export default function AdminProfile() {

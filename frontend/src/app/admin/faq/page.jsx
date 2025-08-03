@@ -1,52 +1,38 @@
-// frontend/src/app/admin/faq/page.jsx
+
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from 'next/navigation';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 export default function AdminFAQPage() {
   const [faqs, setFaqs] = useState([]);
   const [editing, setEditing] = useState(null); // id or null
   const [form, setForm] = useState({ question: "", answer: "" });
   const [token, setToken] = useState("");
+  const [role, setRole] = useState("");
+  const [error, setError] = useState("");
 
   const router = useRouter();
-  const [isChecking, setIsChecking] = useState(true);
+  const { isChecking } = useAdminAuth();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL environment variable is not set!');
 
+  // Set role and token from localStorage
   useEffect(() => {
-    const checkAuthAndFetch = async () => {
-      const t = localStorage.getItem("admin_token") || "";
-      if (!t) {
-        router.replace('/admin/login');
-        return;
-      }
-      // Optionally verify token with backend
-      try {
-        const res = await fetch((process.env.NEXT_PUBLIC_API_URL || 'https://odamroyal.onrender.com') + '/api/admin/dashboard', {
-          credentials: 'include',
-          headers: { 'Authorization': `Bearer ${t}` },
-        });
-        if (!res.ok) {
-          localStorage.removeItem('admin_token');
-          localStorage.removeItem('admin_role');
-          localStorage.removeItem('admin_username');
-          router.replace('/admin/login');
-          return;
-        }
-      } catch {
-        localStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_role');
-        localStorage.removeItem('admin_username');
-        router.replace('/admin/login');
-        return;
-      }
-      setToken(t);
-      fetchFaqs();
-      setIsChecking(false);
-    };
-    checkAuthAndFetch();
-  }, [router]);
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+      setToken(localStorage.getItem("admin_token") || "");
+    }
+  }, []);
 
+  // Fetch FAQs after auth and role check
+  useEffect(() => {
+    if (isChecking || !token || !['admin', 'staff'].includes(role)) return;
+    fetchFaqs();
+  }, [isChecking, token, role]);
+
+  // Early returns after all hooks
   if (isChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -58,27 +44,41 @@ export default function AdminFAQPage() {
     );
   }
 
+  if (role && !['admin', 'staff'].includes(role)) {
+    return (
+      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-xl shadow text-center">
+        <h2 className="text-2xl font-bold text-[#f97316] mb-4">Access Restricted</h2>
+        <p className="text-gray-700">You do not have permission to manage FAQs.</p>
+      </div>
+    );
+  }
+
   async function fetchFaqs() {
     try {
-      const res = await axios.get("/api/faq");
+      const res = await axios.get(`${API_URL}/api/faq`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setFaqs(res.data);
+      setError("");
     } catch (err) {
-      alert("Failed to fetch FAQs");
+      console.error('Failed to fetch FAQs:', err.response?.status, err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || "Failed to fetch FAQs");
     }
   }
 
   async function handleSave(e) {
     e.preventDefault();
+    setError("");
     try {
       if (editing) {
         await axios.put(
-          `/api/faq/${editing}`,
+          `${API_URL}/api/faq/${editing}`,
           form,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         await axios.post(
-          "/api/faq",
+          `${API_URL}/api/faq`,
           form,
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -87,17 +87,22 @@ export default function AdminFAQPage() {
       setEditing(null);
       fetchFaqs();
     } catch (err) {
-      alert("Failed to save FAQ");
+      console.error('Failed to save FAQ:', err.response?.status, err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || "Failed to save FAQ");
     }
   }
 
   async function handleDelete(id) {
     if (!window.confirm("Delete this FAQ?")) return;
+    setError("");
     try {
-      await axios.delete(`/api/faq/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_URL}/api/faq/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       fetchFaqs();
     } catch (err) {
-      alert("Failed to delete FAQ");
+      console.error('Failed to delete FAQ:', err.response?.status, err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || "Failed to delete FAQ");
     }
   }
 
@@ -114,6 +119,11 @@ export default function AdminFAQPage() {
   return (
     <div className="max-w-2xl mx-auto py-10">
       <h1 className="text-2xl font-bold mb-6 text-center">Manage FAQs</h1>
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-500 p-4 rounded-lg mb-6" aria-live="polite">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSave} className="bg-white shadow rounded p-6 mb-8 space-y-4">
         <div>
           <label className="block font-semibold mb-1">Question</label>
@@ -121,7 +131,7 @@ export default function AdminFAQPage() {
             type="text"
             className="w-full border rounded px-3 py-2"
             value={form.question}
-            onChange={e => setForm({ ...form, question: e.target.value })}
+            onChange={(e) => setForm({ ...form, question: e.target.value })}
             required
           />
         </div>
@@ -130,7 +140,7 @@ export default function AdminFAQPage() {
           <textarea
             className="w-full border rounded px-3 py-2"
             value={form.answer}
-            onChange={e => setForm({ ...form, answer: e.target.value })}
+            onChange={(e) => setForm({ ...form, answer: e.target.value })}
             required
           />
         </div>
@@ -146,8 +156,14 @@ export default function AdminFAQPage() {
         </div>
       </form>
       <div className="space-y-4">
-        {faqs.map(faq => (
-          <div key={faq._id} className="bg-white shadow rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        {faqs.length === 0 && !error && (
+          <div className="text-center text-gray-500">No FAQs found.</div>
+        )}
+        {faqs.map((faq) => (
+          <div
+            key={faq._id}
+            className="bg-white shadow rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+          >
             <div>
               <div className="font-semibold">{faq.question}</div>
               <div className="text-gray-700 text-sm">{faq.answer}</div>

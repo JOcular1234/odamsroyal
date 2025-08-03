@@ -1,18 +1,14 @@
-// frontend/src/app/admin/staff/page.jsx
+// // frontend/src/app/admin/staff/page.jsx
 'use client';
 import { useEffect, useState, useRef } from 'react';
-
 import adminAuth from '../../../utils/adminAuth';
-import {
-  UserCircleIcon,
-  MagnifyingGlassIcon,
-  LockClosedIcon,
-  TrashIcon,
-  CheckCircleIcon,
-} from '@heroicons/react/24/outline';
+import { UserCircleIcon, MagnifyingGlassIcon, LockClosedIcon, TrashIcon } from '@heroicons/react/24/outline';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 export default function StaffManagement() {
-
+  // Declare all hooks at the top
+  const { isChecking } = useAdminAuth();
+  const [role, setRole] = useState('');
   const [staff, setStaff] = useState([]);
   const [staffLoading, setStaffLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,9 +21,37 @@ export default function StaffManagement() {
   const [search, setSearch] = useState('');
   const deleteModalRef = useRef(null);
 
+  // Set role from localStorage
   useEffect(() => {
-    fetchStaff();
+    if (typeof window !== 'undefined') {
+      setRole(localStorage.getItem('admin_role') || '');
+    }
   }, []);
+
+  // Fetch staff
+  useEffect(() => {
+    if (isChecking || role !== 'admin') return;
+    async function fetchStaff() {
+      setStaffLoading(true);
+      setError('');
+      try {
+        const res = await adminAuth.makeAuthenticatedRequest('/admin/list', { method: 'GET' });
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          console.error('Failed to fetch staff:', res.status, res.statusText, text);
+          throw new Error(`Failed to fetch staff: ${res.status} ${res.statusText} ${text}`);
+        }
+        const data = await res.json();
+        setStaff(data.users.filter((u) => u.role === 'staff'));
+      } catch (err) {
+        console.error('Fetch staff error (catch):', err);
+        setError(err.message || 'Failed to fetch staff');
+      } finally {
+        setStaffLoading(false);
+      }
+    }
+    fetchStaff();
+  }, [isChecking, role]);
 
   // Focus management for delete modal
   useEffect(() => {
@@ -36,23 +60,25 @@ export default function StaffManagement() {
     }
   }, [showDeleteModal]);
 
-  async function fetchStaff() {
-    setStaffLoading(true);
-    setError('');
-    try {
-      const res = await adminAuth.makeAuthenticatedRequest('/admin/list', { method: 'GET' });
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        console.error('Failed to fetch staff:', res.status, res.statusText, text);
-        throw new Error(`Failed to fetch staff: ${res.status} ${res.statusText} ${text}`);
-      }
-      const data = await res.json();
-      setStaff(data.users.filter((u) => u.role === 'staff'));
-    } catch (err) {
-      console.error('Fetch staff error (catch):', err);
-      setError(err.message || 'Failed to fetch staff');
-    }
-    setStaffLoading(false);
+  // Early returns after all hooks
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (role && role !== 'admin') {
+    return (
+      <div className="max-w-2xl mx-auto mt-20 p-8 bg-white rounded-xl shadow text-center">
+        <h2 className="text-2xl font-bold text-[#f97316] mb-4">Access Restricted</h2>
+        <p className="text-gray-700">You do not have permission to manage staff.</p>
+      </div>
+    );
   }
 
   async function handleAddStaff(e) {
@@ -79,8 +105,9 @@ export default function StaffManagement() {
       }
     } catch (err) {
       setFormError(err.message || 'Failed to add staff');
+    } finally {
+      setAdding(false);
     }
-    setAdding(false);
   }
 
   async function handleDeleteStaff(id) {

@@ -14,6 +14,7 @@ import {
   ExclamationCircleIcon,
   MagnifyingGlassIcon
 } from './AdminAppointmentsIcons';
+import useAdminAuth from '@/hooks/useAdminAuth';
 
 export default function AdminAppointments() {
   const [role, setRole] = useState('');
@@ -31,16 +32,20 @@ export default function AdminAppointments() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const { isChecking } = useAdminAuth();
+
   useEffect(() => {
+    if (isChecking) return;
     fetchAppointments();
-  }, []);
+  }, [isChecking]);
 
   async function fetchAppointments() {
     setLoading(true);
     setError('');
     try {
       const token = localStorage.getItem('admin_token');
-      const res = await axios.get(`/api/appointments`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://odamsroyal.onrender.com/api';
+      const res = await axios.get(`${API_URL}/appointments`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -85,6 +90,17 @@ export default function AdminAppointments() {
     const matchesStatus = statusFilter === 'all' ? true : a.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className="py-14 max-w-5xl mx-auto px-2 sm:px-6 font-sans">
