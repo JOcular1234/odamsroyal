@@ -11,7 +11,7 @@ const adminRoutes = require('./routes/admin');
 
 dotenv.config();
 const app = express();
-
+app.set('trust proxy', 1); //for express-rate-limit to trust proxy
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',

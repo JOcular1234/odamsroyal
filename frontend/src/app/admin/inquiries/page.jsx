@@ -144,72 +144,9 @@ export default function AdminInquiries() {
     }
   }
 
-  async function handleMarkRead(id, isRead) {
-    try {
-      const token = localStorage.getItem('admin_token');
-      if (!token) {
-        setError('Please log in to perform this action');
-        router.push('/admin/login');
-        return;
-      }
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}`,
-        { isRead },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      setInquiries(inquiries.map((inq) => (inq._id === id ? { ...inq, isRead } : inq)));
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          'Failed to update inquiry status'
-      );
-    }
-  }
 
-  async function handleBulkMarkRead(isRead) {
-    try {
-      const token = localStorage.getItem('admin_token');
-      if (!token) {
-        setError('Please log in to perform this action');
-        router.push('/admin/login');
-        return;
-      }
-      await Promise.all(
-        selectedInquiries.map((id) =>
-          axios.patch(
-            `${process.env.NEXT_PUBLIC_API_URL || ''}/api/inquiries/${id}`,
-            { isRead },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-        )
-      );
-      setInquiries(
-        inquiries.map((inq) =>
-          selectedInquiries.includes(inq._id) ? { ...inq, isRead } : inq
-        )
-      );
-      setSelectedInquiries([]);
-      setShowSuccessModal(`Selected inquiries marked as ${isRead ? 'read' : 'unread'}`);
-      setTimeout(() => setShowSuccessModal(''), 2000);
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          'Failed to update selected inquiries'
-      );
-    }
-  }
+
+
 
   async function handleRespond(id, email) {
     try {
@@ -304,20 +241,6 @@ export default function AdminInquiries() {
         {/* Bulk Actions */}
         {selectedInquiries.length > 0 && (
           <div className="flex flex-wrap gap-4 mb-8">
-            <button
-              className="px-6 py-2 bg-[#f97316] text-white rounded-xl font-semibold hover:bg-[#e86a15] transition-all duration-300 font-sans"
-              onClick={() => handleBulkMarkRead(true)}
-              aria-label="Mark selected inquiries as read"
-            >
-              Mark as Read
-            </button>
-            <button
-              className="px-6 py-2 bg-[#f97316] text-white rounded-xl font-semibold hover:bg-[#e86a15] transition-all duration-300 font-sans"
-              onClick={() => handleBulkMarkRead(false)}
-              aria-label="Mark selected inquiries as unread"
-            >
-              Mark as Unread
-            </button>
             <button
               className="px-6 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all duration-300 font-sans"
               onClick={() => setShowBulkDeleteModal(true)}

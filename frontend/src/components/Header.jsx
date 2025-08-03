@@ -14,7 +14,7 @@ export default function Header() {
             <img src="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" alt="logo" title='logo' className='rounded-full' />
           </div>
           <Link href="/" className="text-white font-extrabold text-xl tracking-tight sm:text-2xl hover:text-accent transition-colors">
-            Odamz Royal Consultz
+            Odamz Royal
           </Link>
         </div>
         {/* Hamburger for mobile */}
