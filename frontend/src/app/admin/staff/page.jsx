@@ -1,6 +1,6 @@
 // frontend/src/app/admin/staff/page.jsx
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 import adminAuth from '../../../utils/adminAuth';
 import {
