@@ -65,8 +65,9 @@ export default function AdminAppointments() {
   async function updateStatus(id, status) {
     setUpdating(id + status);
     try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
       const token = localStorage.getItem('admin_token');
-      await axios.patch(`/api/admin/appointments/${id}`, { status }, {
+      await axios.patch(`${API_URL}/admin/appointments/${id}`, { status }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
