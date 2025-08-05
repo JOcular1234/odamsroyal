@@ -104,7 +104,7 @@ export default function PropertyDetailPage() {
       }
     }
     fetchProperty();
-  }, [id, API_URL, fetchOtherProperties, params]);
+  }, [id]);
 
   async function fetchOtherProperties() {
     setOtherLoading(true);
