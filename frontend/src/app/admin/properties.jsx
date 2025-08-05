@@ -95,7 +95,7 @@ export default function AdminProperties() {
                   <td className="py-2 px-4 font-semibold text-primary">{p.title}</td>
                   <td className="py-2 px-4 text-neutral">{p.description}</td>
                   <td className="py-2 px-4">
-                    <img src={p.image} alt={p.title} className="w-24 h-16 object-cover rounded shadow" />
+                    <Image src={p.image} alt={p.title} width={96} height={64} className="w-24 h-16 object-cover rounded shadow" />
                   </td>
                   <td className="py-2 px-4">
                     <button

@@ -1,4 +1,6 @@
+// frontend/src/components/Footer.jsx
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -9,7 +11,7 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center font-bold text-white text-xl shadow-md">
-                <img src="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" alt="logo" title='logo' className='rounded-full' />
+                <Image src="https://res.cloudinary.com/drkli5pwj/image/upload/v1753880711/odamzlogo_cqgm0c.jpg" alt="logo" title='logo' width={48} height={48} className='rounded-full' />
               </div>
               <span className="text-xl font-extrabold tracking-tight">Odamz Royal Consultz</span>
             </div>

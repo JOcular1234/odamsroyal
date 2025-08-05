@@ -1,4 +1,4 @@
-// // frontend/src/app/properties/pages.jsx
+// frontend/src/app/properties/pages.jsx
 "use client";
 import { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -21,8 +21,8 @@ type Property = {
 };
 
 export default function PropertiesPage() {
-  const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [search, setSearch] = useState<string>('');
+  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
 
   // Debounce search input
   useEffect(() => {
