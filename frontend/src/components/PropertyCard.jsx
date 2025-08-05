@@ -170,7 +170,7 @@ export default function PropertyCard({ property, showActions = false }) {
             {property.price && (
               <div className="flex items-center">
                 <span className="font-semibold">Price:</span>
-                <span className="ml-1">{property.price}</span>
+                <span className="ml-1">₦{property.price}</span>
               </div>
             )}
             {property.bedrooms && (
