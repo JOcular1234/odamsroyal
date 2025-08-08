@@ -35,13 +35,23 @@ export default function PropertiesPage() {
     queryKey: ['properties'],
     queryFn: async () => {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/properties`);
-      return res.data;
+      // Log the response for debugging
+      console.log('API /properties response:', res.data);
+      // If the response is an object with a 'properties' array, return that
+      if (Array.isArray(res.data)) return res.data;
+      if (res.data && Array.isArray(res.data.properties)) return res.data.properties;
+      // Otherwise, return an empty array to avoid runtime errors
+      return [];
     },
   });
 
-  const filteredProperties = properties.filter((property) =>
-    property.title.toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
+  // Defensive: Only filter if properties is an array
+  const filteredProperties = Array.isArray(properties)
+    ? properties.filter((property) =>
+        property.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
+    : [];
+
 
   // Refs for scroll animations
   const sectionRef = useRef<HTMLElement>(null);

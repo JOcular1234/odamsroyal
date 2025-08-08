@@ -1,3 +1,4 @@
+// backend/controllers/propertyController.js
 const Property = require('../models/Properties');
 
 exports.createProperty = async (req, res) => {
@@ -12,8 +13,19 @@ exports.createProperty = async (req, res) => {
 
 exports.getAllProperties = async (req, res) => {
   try {
-    const properties = await Property.find();
-    res.json(properties);
+    const skip = parseInt(req.query.skip) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+    const [properties, total] = await Promise.all([
+      Property.find().skip(skip).limit(limit),
+      Property.countDocuments(),
+    ]);
+    res.json({
+      total,
+      properties,
+      skip,
+      limit,
+      hasMore: skip + properties.length < total
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

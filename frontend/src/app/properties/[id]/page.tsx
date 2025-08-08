@@ -110,8 +110,10 @@ export default function PropertyDetailPage() {
     setOtherLoading(true);
     setOtherError(null);
     try {
-      const res = await axios.get<Property[]>(`${API_URL}/properties`);
-      const others = res.data.filter((p) => p._id !== id);
+      const res = await axios.get(`${API_URL}/properties`);
+      // Accept both array and object response
+      const propertyArray = Array.isArray(res.data) ? res.data : res.data.properties;
+      const others = (propertyArray || []).filter((p: Property) => p._id !== id);
       const shuffledOthers = [...others];
       for (let i = shuffledOthers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
