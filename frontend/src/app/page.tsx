@@ -50,7 +50,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [skip, setSkip] = useState(0);
   const loaderRef = useRef<HTMLDivElement | null>(null);
-  const gridRef = useRef<any>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
   // Refs for scroll animations
   const aboutRef = useRef<HTMLElement>(null);
