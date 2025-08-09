@@ -413,7 +413,7 @@ export default function Home() {
   // Reset scroll on search change
   useEffect(() => {
     if (gridRef.current) {
-      gridRef.current.scrollTo({ scrollLeft: 0, scrollTop: 0 });
+      gridRef.current.scrollTo({ left: 0, top: 0 });
     }
   }, [search]);
 
