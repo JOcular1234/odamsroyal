@@ -336,7 +336,7 @@
 
 // frontend/src/components/PropertyCard.jsx
 "use client";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
 import { FiShare2 } from 'react-icons/fi';
@@ -366,6 +366,16 @@ export default function PropertyCard({ property, showActions = false }) {
   const [copied, setCopied] = useState(false);
   const touchStartX = useRef(null);
   const maxMessageLength = 100; // Character limit for message
+
+  // Preload images for faster switching
+  useEffect(() => {
+    images.forEach((img, idx) => {
+      if (idx < 3) { // Preload first 3 images
+        const imgElement = new window.Image();
+        imgElement.src = img;
+      }
+    });
+  }, [images]);
 
   // Swipe handlers for mobile carousel
   const handleTouchStart = (e) => {
@@ -465,8 +475,7 @@ export default function PropertyCard({ property, showActions = false }) {
             height={300}
             className="rounded-xl object-cover w-full h-60 mb-3 transition-all duration-300"
             style={{ width: '100%', height: '240px', objectFit: 'cover' }}
-            placeholder="blur"
-            blurDataURL="https://via.placeholder.com/400x300?text=Loading..."
+            placeholder="empty"
             unoptimized={false}
             priority={showActions} // prioritize on details page
           />
@@ -483,9 +492,9 @@ export default function PropertyCard({ property, showActions = false }) {
                 } object-cover w-16 h-10 transition-all duration-200 hover:opacity-90`}
                 style={{ width: '64px', height: '40px', objectFit: 'cover' }}
                 onClick={() => setMainIdx(idx)}
-                placeholder="blur"
-                blurDataURL="https://via.placeholder.com/64x40?text=..."
+                placeholder="empty"
                 unoptimized={false}
+                priority={idx < 2} // Preload first 2 thumbnails
               />
             ))}
           </div>

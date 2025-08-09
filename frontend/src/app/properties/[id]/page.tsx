@@ -1,4 +1,3 @@
-// // // // frontend/src/app/properties/[id]/page.jsx
 // frontend/src/app/properties/[id]/page.jsx
 "use client";
 import { useEffect, useState, useRef, Component, ReactNode } from 'react';
