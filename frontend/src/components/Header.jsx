@@ -41,20 +41,7 @@ export default function Header() {
             isOpen ? 'flex' : 'hidden'
           } md:flex flex-col md:flex-row md:items-center gap-4 md:gap-6 w-full md:w-auto absolute md:static top-20 left-0 md:top-0 bg-primary md:bg-transparent p-4 md:p-0 transition-all duration-300 ease-in-out`}
         >
-          <Link
-            href="/about"
-            className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            About
-          </Link>
-          <Link
-            href="/services"
-            className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            Services
-          </Link>
+          
           <Link
             href="/properties"
             className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
@@ -62,6 +49,15 @@ export default function Header() {
           >
             Properties
           </Link>
+
+          <Link
+            href="/services"
+            className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            Services
+          </Link>
+
           <Link
             href="/appointment"
             className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
@@ -69,6 +65,15 @@ export default function Header() {
           >
             Appointments
           </Link>
+          
+          <Link
+            href="/about"
+            className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            About
+          </Link>
+          
           <Link
             href="/faq"
             className="text-white font-semibold text-base md:text-lg px-3 py-2 rounded-md hover:bg-accent hover:text-white transition-colors"
