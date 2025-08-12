@@ -121,6 +121,30 @@ export default function Footer() {
         {/* Social Media and Copyright */}
         <div className="border-t border-gray-700 pt-6 flex flex-col items-center gap-4">
           <div className="flex gap-6">
+
+            {/* Facebook */}
+            <a
+              href="https://www.facebook.com/share/15s2FADKKk/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-200 hover:text-accent transition-colors"
+              aria-label="Facebook"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M22.675 0h-21.35C.597 0 0 .597 0 
+                  1.333v21.333C0 23.403.597 24 1.325 
+                  24h11.495v-9.294H9.692V11.41h3.128V8.692c0-3.1 
+                  1.894-4.788 4.659-4.788 1.325 0 2.463.097 
+                  2.794.141v3.24l-1.918.001c-1.504 0-1.796.715-1.796 
+                  1.763v2.312h3.587l-.467 3.296h-3.12V24h6.116C23.403 
+                  24 24 23.403 24 22.667V1.333C24 
+                  .597 23.403 0 22.675 0z" />
+              </svg>
+            </a>
             {/* YouTube */}
             <a
               href="https://youtube.com/@odamzroyalty?si=FYNmazx_7xK_VZLI"
